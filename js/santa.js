@@ -231,6 +231,126 @@ GS.santa = (function () {
     later(function () { gift.hidden = false; speak(texts.offer); }, 5000);
   }
 
+  // ---------- Gửi lời chúc: ông mang cuộn thư tới, đọc, rồi tạo bất ngờ ----------
+  function deliver(name, wish, onDone) {
+    var box = document.getElementById('wishShow');
+    var scroll = document.getElementById('wsScroll');
+    var chimney = document.getElementById('wsChimney');
+    var santaUp = document.getElementById('wsSantaUp');
+    var sleigh = document.getElementById('wsSleigh');
+    var santa = document.getElementById('wsSanta');
+    var bubbleEl = document.getElementById('wsBubble');
+    var clapEl = document.getElementById('wsClap');
+    var texts = GS.data.wishes.delivery;
+    var timers = [], finished = false;
+    var viaChimney = Math.random() < 0.5;
+
+    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+    function speak(text) { bubbleEl.textContent = text; bubbleEl.hidden = false; }
+
+    // Dùng lại hình ông đứng của màn chào và xe trượt đã tải từ santa.svg.
+    var figure = document.querySelector('#introSanta svg');
+    santa.querySelectorAll('svg').forEach(function (s) { s.remove(); });
+    santa.appendChild(figure.cloneNode(true));
+    santaUp.replaceChildren(figure.cloneNode(true));
+    var sleighArt = art.querySelector('svg, img');
+    sleigh.replaceChildren(sleighArt ? sleighArt.cloneNode(true) : '');
+
+    // Đặt lại trạng thái từ lần gửi trước.
+    box.classList.remove('leaving', 'fx');
+    santa.className = 'ws-santa';
+    sleigh.classList.remove('takeoff');
+    [scroll, chimney, sleigh, santa, bubbleEl, clapEl].forEach(function (el) { el.hidden = true; });
+    scroll.classList.remove('open');
+    ['wsTo', 'wsName', 'wsColon', 'wsBody'].forEach(function (id) { document.getElementById(id).textContent = ''; });
+
+    document.body.classList.add('intro-on');
+    box.hidden = false;
+    GS.music.jingle();
+
+    function finish(skipped) {
+      if (finished) return;
+      finished = true;
+      timers.forEach(clearTimeout);
+      if (skipped) GS.snow.stopFx();
+      box.classList.add('leaving');
+      setTimeout(function () {
+        box.hidden = true;
+        document.body.classList.remove('intro-on');
+        if (!skipped) flyAcross(false);
+        onDone();
+      }, 600);
+    }
+    document.getElementById('wsSkip').onclick = function () { finish(true); };
+
+    // 1. Ông chui ra từ ống khói, hoặc bay xuống bằng xe trượt.
+    var arrive;
+    if (viaChimney) {
+      chimney.hidden = false;
+      later(function () { chimney.hidden = true; santa.hidden = false; santa.classList.add('hop'); }, 1300);
+      arrive = 1900;
+    } else {
+      sleigh.hidden = false;
+      later(function () { santa.hidden = false; santa.classList.add('step'); }, 2600);
+      arrive = 3300;
+    }
+
+    // 2. Cười "Ho ho ho", cầm cuộn giấy đỏ có nơ vàng rồi mở ra đọc.
+    later(function () { speak(texts.arrive.replace(/\{name\}/g, name)); GS.music.hohoho(); }, arrive);
+    later(function () { speak(texts.read); scroll.hidden = false; }, arrive + 1500);
+    later(function () { scroll.classList.add('open'); typeWish(); }, arrive + 2300);
+
+    // Từng chữ hiện ra như đang viết tay, tên người nhận tô vàng kim.
+    function typeWish() {
+      var parts = [['wsTo', 'Gửi '], ['wsName', name], ['wsColon', ': '], ['wsBody', wish]];
+      var p = 0, c = 0;
+      (function step() {
+        if (finished) return;
+        if (p >= parts.length) return later(surprise, 900);
+        var el = document.getElementById(parts[p][0]), chars = Array.from(parts[p][1]);
+        el.textContent += chars[c++];
+        if (c >= chars.length) { p++; c = 0; }
+        later(step, 45);
+      })();
+    }
+
+    // 3. Nháy mắt, vỗ tay và một hiệu ứng bất ngờ ngẫu nhiên.
+    function surprise() {
+      bubbleEl.hidden = true;
+      santa.classList.add('wink');
+      speak(texts.wink);
+      later(function () {
+        santa.classList.remove('wink');
+        clapEl.hidden = false;
+        GS.music.clap();
+      }, 900);
+      later(function () {
+        clapEl.hidden = true;
+        bubbleEl.hidden = true;
+        box.classList.add('fx');
+        GS.snow.effect('random', {
+          text: name,
+          onGold: function () {
+            var g = rand(GS.data.wishes.giftDrops);
+            GS.music.jingle();
+            GS.showGift(g.icon, g.title, g.text);
+          }
+        }, goodbye);
+      }, 1400);
+    }
+
+    // 4. Vẫy tay chào, lên xe trượt bay đi.
+    function goodbye() {
+      if (finished) return;
+      box.classList.remove('fx');
+      speak(texts.bye);
+      GS.music.hohoho();
+      later(function () { bubbleEl.hidden = true; santa.classList.add('boarding'); }, 1800);
+      later(function () { if (!sleigh.hidden) sleigh.classList.add('takeoff'); GS.music.jingle(); }, 2200);
+      later(function () { finish(false); }, 3400);
+    }
+  }
+
   // ---------- Hành trình đêm 24/12 ----------
   function arrival(year, offset) {
     return Date.UTC(year, 11, 25) - offset * 3600000;
@@ -307,7 +427,10 @@ GS.santa = (function () {
     initIntro(function () {
       setTimeout(function () { flyAcross(false); }, 800);
       setTimeout(function () { showMascot(); }, 1500);
-      setInterval(function () { flyAcross(false); }, 40000);
+      // Không tự bay ngang khi ông đang trao thư chúc.
+      setInterval(function () {
+        if (!document.body.classList.contains('intro-on')) flyAcross(false);
+      }, 40000);
     });
 
     document.getElementById('btnDailyGift').addEventListener('click', function () {
@@ -317,5 +440,5 @@ GS.santa = (function () {
     });
   }
 
-  return { init: init, fly: flyAcross, say: say };
+  return { init: init, fly: flyAcross, say: say, deliver: deliver };
 })();

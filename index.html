@@ -19,6 +19,9 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap&subset=vietnamese">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/santa.css">
 </head>
@@ -48,7 +51,7 @@
           <circle cx="95" cy="25" r="7" fill="#fff"/>
           <rect x="36" y="26" width="48" height="9" rx="4" fill="#fff"/>
           <circle cx="53" cy="40" r="2.5" fill="#222"/>
-          <circle cx="67" cy="40" r="2.5" fill="#222"/>
+          <circle class="eye-r" cx="67" cy="40" r="2.5" fill="#222"/>
           <circle cx="60" cy="47" r="3.5" fill="#e88"/>
         </svg>
       </div>
@@ -62,6 +65,29 @@
       <p class="intro-card-title">🎁 Lời chúc hôm nay của ông</p>
       <p id="introWish" class="intro-wish"></p>
       <button id="introGo" class="btn btn-red" type="button">Cảm ơn ông! Vào trang chính</button>
+    </div>
+  </div>
+
+  <!-- Gửi lời chúc: ông già Noel trao cuộn thư chúc và tạo bất ngờ -->
+  <div id="wishShow" class="intro wish-show" role="dialog" aria-modal="true" aria-label="Ông già Noel trao lời chúc" hidden>
+    <button id="wsSkip" class="btn btn-ghost intro-skip" type="button">Bỏ qua ⏭</button>
+    <div id="wsScroll" class="ws-scroll" hidden>
+      <div class="rod"><span class="gift-bow gold-bow"></span></div>
+      <div class="ws-paper">
+        <p class="ws-text"><span id="wsTo"></span><b id="wsName" class="ws-name"></b><span id="wsColon"></span><span id="wsBody"></span></p>
+      </div>
+      <div class="rod"></div>
+    </div>
+    <div class="ws-stage">
+      <div id="wsChimney" class="ws-chimney" hidden>
+        <div class="ws-chimney-clip"><div id="wsSantaUp" class="ws-santa-up"></div></div>
+        <div class="ws-chimney-body"></div>
+      </div>
+      <div id="wsSleigh" class="intro-sleigh santa-art" hidden></div>
+      <div id="wsSanta" class="ws-santa" hidden>
+        <div id="wsBubble" class="bubble intro-bubble" hidden></div>
+        <span id="wsClap" class="ws-clap" hidden>👏</span>
+      </div>
     </div>
   </div>
 
@@ -96,6 +122,7 @@
     </g>
     <!-- Cây thông -->
     <g transform="translate(560 40)">
+     <g class="tree">
       <rect x="40" y="215" width="22" height="30" fill="#5b3a1e"/>
       <polygon points="51,0 0,90 102,90" fill="#1d6b3a"/>
       <polygon points="51,45 -15,150 117,150" fill="#18603a"/>
@@ -113,6 +140,7 @@
         <circle cx="110" cy="205" r="5" fill="#ffd54a"/>
         <circle cx="25" cy="208" r="5" fill="#ff4d4d"/>
       </g>
+     </g>
     </g>
     <!-- Người tuyết -->
     <g transform="translate(400 200)">
@@ -188,11 +216,16 @@
 
     <section class="card">
       <h2>💌 Gửi lời chúc</h2>
+      <p class="muted">Nhập tên người nhận, ông già Noel sẽ tự mang lời chúc đến kèm một bất ngờ!</p>
       <form id="wishForm" class="row">
-        <input id="wishName" type="text" maxlength="40" placeholder="Nhập tên của bạn" autocomplete="name">
-        <button class="btn" type="submit">Nhận lời chúc</button>
+        <input id="wishName" type="text" maxlength="30" placeholder="Tên người nhận, ví dụ: Lan" autocomplete="off">
+        <button class="btn" type="submit">Gửi lời chúc</button>
       </form>
       <p id="wishOut" class="wish-out" hidden></p>
+      <div id="wishActions" class="row wish-actions" hidden>
+        <button id="btnCopyWish" class="btn btn-red" type="button">📋 Sao chép lời chúc</button>
+        <button id="btnWishAgain" class="btn btn-ghost" type="button">💌 Gửi tiếp cho người khác</button>
+      </div>
     </section>
 
     <section class="card">

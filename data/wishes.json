@@ -41,6 +41,26 @@
     "opened": "Đây là lời chúc ông dành riêng cho con hôm nay!",
     "bye": "Tạm biệt con! Ông vẫn ở quanh đây thôi. Ho ho ho!"
   },
+  "delivery": {
+    "arrive": "Ho ho ho! Ông có thư chúc gửi {name} đây!",
+    "read": "Để ông đọc nhé...",
+    "wink": "Khoan đã, còn một bất ngờ nữa! 😉",
+    "bye": "Giáng Sinh vui vẻ! Ông đi đây. Ho ho ho!"
+  },
+  "scrollWishes": [
+    "Chúc cháu một mùa Giáng Sinh ấm áp và tràn ngập tiếng cười!",
+    "Chúc cháu năm mới khỏe mạnh, bình an và luôn được yêu thương!",
+    "Mong mọi điều ước của cháu đêm Noel này đều thành hiện thực!",
+    "Chúc cháu luôn rạng rỡ như ánh đèn trên cây thông Giáng Sinh!",
+    "Chúc cháu một đêm Noel lung linh bên những người thân yêu nhất!",
+    "Năm nay cháu rất ngoan, ông chúc cháu nhận thật nhiều quà nhé!",
+    "Chúc cháu học giỏi, làm tốt và gặp thật nhiều may mắn!",
+    "Mong trái tim cháu luôn ấm áp dù mùa đông có lạnh đến đâu!",
+    "Chúc cháu và gia đình một mùa lễ hội an lành, hạnh phúc!",
+    "Chúc cháu có thật nhiều kỷ niệm đẹp trong mùa Giáng Sinh này!",
+    "Chúc cháu luôn giữ nụ cười tươi và trái tim biết yêu thương!",
+    "Chúc cháu bước sang năm mới thật rực rỡ và đầy niềm vui!"
+  ],
   "dailyWishes": [
     "Chúc bạn một ngày thật bình an và đầy tiếng cười!",
     "Mong hôm nay mọi việc của bạn đều suôn sẻ như ý.",

@@ -95,13 +95,42 @@ GS.music = (function () {
     }
   }
 
-  function init() {
+  // Tiếng vỗ tay: một chùm nhiễu trắng ngắn qua bộ lọc.
+  function clap() {
+    if (!audio()) return;
+    var t = ctx.currentTime;
+    for (var k = 0; k < 2; k++) {
+      var len = Math.floor(ctx.sampleRate * 0.12);
+      var buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+      for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+      var src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      src.buffer = buf;
+      f.type = 'bandpass'; f.frequency.value = 1500; f.Q.value = 0.8;
+      g.gain.value = 1.4;
+      src.connect(f).connect(g).connect(master);
+      src.start(t + k * 0.012);
+    }
+  }
+
+  function updateButton() {
     var btn = document.getElementById('btnMusic');
-    btn.addEventListener('click', function () {
-      var on = toggle();
-      btn.textContent = on ? '🔇 Tắt nhạc' : '🎵 Bật nhạc';
+    if (btn) btn.textContent = playing ? '🔇 Tắt nhạc' : '🎵 Bật nhạc';
+  }
+
+  function setPlaying(on) {
+    if (on !== playing) toggle();
+    updateButton();
+  }
+
+  function init() {
+    document.getElementById('btnMusic').addEventListener('click', function () {
+      toggle();
+      updateButton();
     });
   }
 
-  return { init: init, hohoho: hohoho, jingle: jingle };
+  return {
+    init: init, hohoho: hohoho, jingle: jingle, clap: clap,
+    setPlaying: setPlaying, isPlaying: function () { return playing; }
+  };
 })();
