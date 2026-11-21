@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 130">
+  <!-- Dây cương -->
+  <path d="M118 78 Q170 60 222 66 Q270 58 300 60" fill="none" stroke="#c9a227" stroke-width="2"/>
+
+  <!-- Xe trượt -->
+  <g class="sleigh">
+    <path d="M8 108 Q4 120 20 120 H128 Q140 120 142 108" fill="none" stroke="#c9a227" stroke-width="5" stroke-linecap="round"/>
+    <path d="M20 70 H118 Q132 70 128 92 L122 106 H26 Q12 106 14 90Z" fill="#c62828"/>
+    <path d="M20 70 H118" stroke="#ffd54a" stroke-width="4"/>
+    <circle cx="70" cy="90" r="7" fill="#ffd54a"/>
+    <!-- Túi quà -->
+    <path d="M18 72 Q8 40 30 30 Q50 26 56 48 L58 72Z" fill="#8d5a2b"/>
+    <rect x="22" y="22" width="16" height="14" fill="#2e7d32"/>
+    <rect x="28" y="22" width="4" height="14" fill="#ffd54a"/>
+    <rect x="40" y="26" width="14" height="12" fill="#1565c0"/>
+    <!-- Ông già Noel -->
+    <g class="santa">
+      <ellipse cx="88" cy="62" rx="22" ry="20" fill="#d62f2f"/>
+      <rect x="66" y="64" width="44" height="7" fill="#222"/>
+      <rect x="84" y="63" width="9" height="9" fill="#ffd54a"/>
+      <circle cx="90" cy="34" r="13" fill="#ffd7b5"/>
+      <path d="M77 36 Q90 64 103 36 Q90 44 77 36Z" fill="#fff"/>
+      <path d="M76 30 Q86 6 104 18 L112 26 L103 30Z" fill="#d62f2f"/>
+      <circle cx="113" cy="27" r="5" fill="#fff"/>
+      <rect x="75" y="27" width="30" height="6" rx="3" fill="#fff"/>
+      <circle cx="86" cy="33" r="1.8" fill="#222"/>
+      <circle cx="95" cy="33" r="1.8" fill="#222"/>
+      <circle cx="91" cy="38" r="2.4" fill="#e88"/>
+      <g class="arm">
+        <path d="M104 56 L118 36" stroke="#d62f2f" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="119" cy="34" r="5" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Tuần lộc 1 -->
+  <g transform="translate(200 40)">
+    <g class="leg"><rect x="12" y="34" width="5" height="22" rx="2" fill="#6b4226"/></g>
+    <g class="leg b"><rect x="22" y="34" width="5" height="22" rx="2" fill="#5a3520"/></g>
+    <g class="leg b"><rect x="44" y="34" width="5" height="22" rx="2" fill="#6b4226"/></g>
+    <g class="leg"><rect x="54" y="34" width="5" height="22" rx="2" fill="#5a3520"/></g>
+    <ellipse cx="36" cy="30" rx="30" ry="13" fill="#8b5a33"/>
+    <path d="M58 24 L68 6 L78 10 L70 28Z" fill="#8b5a33"/>
+    <ellipse cx="78" cy="8" rx="10" ry="7" fill="#8b5a33"/>
+    <path d="M72 2 L68 -12 M68 -6 L62 -10 M76 2 L80 -12 M79 -6 L86 -9" stroke="#5a3a1e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <circle cx="80" cy="6" r="1.6" fill="#222"/>
+    <circle cx="88" cy="9" r="3" fill="#3b2a1a"/>
+    <path d="M62 26 Q66 30 70 26" stroke="#ffd54a" stroke-width="3" fill="none"/>
+  </g>
+
+  <!-- Tuần lộc 2 (mũi đỏ) -->
+  <g transform="translate(262 34)">
+    <g class="leg b"><rect x="12" y="34" width="5" height="22" rx="2" fill="#6b4226"/></g>
+    <g class="leg"><rect x="22" y="34" width="5" height="22" rx="2" fill="#5a3520"/></g>
+    <g class="leg"><rect x="44" y="34" width="5" height="22" rx="2" fill="#6b4226"/></g>
+    <g class="leg b"><rect x="54" y="34" width="5" height="22" rx="2" fill="#5a3520"/></g>
+    <ellipse cx="36" cy="30" rx="30" ry="13" fill="#9a6a3f"/>
+    <path d="M58 24 L68 6 L78 10 L70 28Z" fill="#9a6a3f"/>
+    <ellipse cx="78" cy="8" rx="10" ry="7" fill="#9a6a3f"/>
+    <path d="M72 2 L68 -12 M68 -6 L62 -10 M76 2 L80 -12 M79 -6 L86 -9" stroke="#5a3a1e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <circle cx="80" cy="6" r="1.6" fill="#222"/>
+    <circle class="nose" cx="89" cy="9" r="4.5" fill="#ff2b2b"/>
+    <path d="M62 26 Q66 30 70 26" stroke="#ffd54a" stroke-width="3" fill="none"/>
+  </g>
+</svg>

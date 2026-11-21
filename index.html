@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Giáng Sinh Tháng 12</title>
+  <meta name="description" content="Đếm từng ngày tới Noel, mở quà, chơi cùng ông già Noel và gửi lời chúc.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/santa.css">
+</head>
+<body class="intro-on">
+  <!-- Màn chào: ông già Noel tặng quà khi mở app -->
+  <div id="intro" class="intro" role="dialog" aria-modal="true" aria-label="Ông già Noel chào bạn">
+    <div class="intro-flakes" aria-hidden="true"></div>
+    <button id="introSkip" class="btn btn-ghost intro-skip" type="button">Bỏ qua ⏭</button>
+    <div class="intro-stage">
+      <div id="introSleigh" class="intro-sleigh santa-art" aria-hidden="true"></div>
+      <div id="introSanta" class="intro-santa" hidden>
+        <div id="introBubble" class="bubble intro-bubble" hidden></div>
+        <svg viewBox="0 0 120 170" aria-hidden="true">
+          <g class="arm"><path d="M84 78 L104 50" stroke="#d62f2f" stroke-width="12" stroke-linecap="round"/><circle cx="106" cy="46" r="8" fill="#fff"/></g>
+          <path d="M30 70 Q60 52 90 70 L98 150 H22Z" fill="#d62f2f"/>
+          <path d="M57 70 V150 H63 V70Z" fill="#fff"/>
+          <rect x="22" y="112" width="76" height="10" fill="#222"/>
+          <rect x="53" y="110" width="14" height="14" fill="#ffd54a"/>
+          <rect x="22" y="146" width="76" height="8" rx="4" fill="#fff"/>
+          <rect x="30" y="154" width="22" height="12" rx="4" fill="#222"/>
+          <rect x="68" y="154" width="22" height="12" rx="4" fill="#222"/>
+          <path d="M36 80 L22 104" stroke="#d62f2f" stroke-width="12" stroke-linecap="round"/>
+          <circle cx="20" cy="108" r="8" fill="#fff"/>
+          <circle cx="60" cy="40" r="20" fill="#ffd7b5"/>
+          <path d="M40 42 Q60 90 80 42 Q60 54 40 42Z" fill="#fff"/>
+          <path d="M38 32 Q52 0 80 14 L94 24 L80 30Z" fill="#d62f2f"/>
+          <circle cx="95" cy="25" r="7" fill="#fff"/>
+          <rect x="36" y="26" width="48" height="9" rx="4" fill="#fff"/>
+          <circle cx="53" cy="40" r="2.5" fill="#222"/>
+          <circle cx="67" cy="40" r="2.5" fill="#222"/>
+          <circle cx="60" cy="47" r="3.5" fill="#e88"/>
+        </svg>
+      </div>
+      <button id="introGift" class="intro-gift" type="button" hidden aria-label="Mở hộp quà của ông già Noel">
+        <span class="gift-lid"><span class="gift-bow"></span></span>
+        <span class="gift-base"></span>
+      </button>
+      <div id="introBurst" class="intro-burst" aria-hidden="true"></div>
+    </div>
+    <div id="introCard" class="intro-card" hidden>
+      <p class="intro-card-title">🎁 Lời chúc hôm nay của ông</p>
+      <p id="introWish" class="intro-wish"></p>
+      <button id="introGo" class="btn btn-red" type="button">Cảm ơn ông! Vào trang chính</button>
+    </div>
+  </div>
+
+  <!-- Bầu trời -->
+  <div class="sky" aria-hidden="true">
+    <div id="stars"></div>
+    <div class="moon"></div>
+  </div>
+
+  <!-- Cảnh làng tuyết -->
+  <svg class="village" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <path d="M0 210 Q200 150 420 200 T820 190 T1200 200 V320 H0Z" fill="#dfe9f5"/>
+    <path d="M0 250 Q300 205 600 245 T1200 240 V320 H0Z" fill="#f4f8fc"/>
+    <!-- Nhà 1 -->
+    <g transform="translate(120 170)">
+      <rect x="0" y="40" width="130" height="85" fill="#7a3b2e"/>
+      <polygon points="-12,44 65,-8 142,44" fill="#5a2a22"/>
+      <path d="M-14 46 L65 -10 L144 46 L134 50 L65 4 L-4 50Z" fill="#fff"/>
+      <rect x="20" y="62" width="28" height="26" class="window"/>
+      <rect x="82" y="62" width="28" height="26" class="window"/>
+      <rect x="52" y="90" width="26" height="35" fill="#3b1d17"/>
+      <rect x="95" y="0" width="16" height="30" fill="#5a2a22"/>
+    </g>
+    <!-- Nhà 2 -->
+    <g transform="translate(860 160)">
+      <rect x="0" y="45" width="160" height="95" fill="#2f5d50"/>
+      <polygon points="-14,48 80,-12 174,48" fill="#1f3f36"/>
+      <path d="M-16 50 L80 -14 L176 50 L165 54 L80 0 L-5 54Z" fill="#fff"/>
+      <rect x="22" y="68" width="30" height="28" class="window"/>
+      <rect x="108" y="68" width="30" height="28" class="window"/>
+      <rect x="66" y="98" width="28" height="42" fill="#13271f"/>
+    </g>
+    <!-- Cây thông -->
+    <g transform="translate(560 40)">
+      <rect x="40" y="215" width="22" height="30" fill="#5b3a1e"/>
+      <polygon points="51,0 0,90 102,90" fill="#1d6b3a"/>
+      <polygon points="51,45 -15,150 117,150" fill="#18603a"/>
+      <polygon points="51,100 -30,220 132,220" fill="#145433"/>
+      <polygon points="51,-18 56,-4 70,-4 59,5 63,19 51,10 39,19 43,5 32,-4 46,-4" fill="#ffd54a" class="tree-star"/>
+      <g class="tree-lights">
+        <circle cx="35" cy="60" r="5" fill="#ff4d4d"/>
+        <circle cx="68" cy="75" r="5" fill="#ffd54a"/>
+        <circle cx="20" cy="120" r="5" fill="#4dc3ff"/>
+        <circle cx="60" cy="110" r="5" fill="#ff7ad9"/>
+        <circle cx="90" cy="135" r="5" fill="#ff4d4d"/>
+        <circle cx="5" cy="190" r="5" fill="#ffd54a"/>
+        <circle cx="45" cy="170" r="5" fill="#4dc3ff"/>
+        <circle cx="85" cy="185" r="5" fill="#ff7ad9"/>
+        <circle cx="110" cy="205" r="5" fill="#ffd54a"/>
+        <circle cx="25" cy="208" r="5" fill="#ff4d4d"/>
+      </g>
+    </g>
+    <!-- Người tuyết -->
+    <g transform="translate(400 200)">
+      <circle cx="30" cy="70" r="32" fill="#fff"/>
+      <circle cx="30" cy="25" r="22" fill="#fff"/>
+      <circle cx="23" cy="20" r="3" fill="#222"/>
+      <circle cx="37" cy="20" r="3" fill="#222"/>
+      <polygon points="30,26 46,30 30,31" fill="#ff8a00"/>
+      <rect x="8" y="40" width="44" height="7" rx="3" fill="#d62f2f"/>
+      <rect x="14" y="-8" width="32" height="10" fill="#222"/>
+      <rect x="20" y="-26" width="20" height="20" fill="#222"/>
+    </g>
+  </svg>
+
+  <canvas id="snow" aria-hidden="true"></canvas>
+
+  <!-- Ông già Noel bay -->
+  <div id="santaFly" class="santa-fly" hidden>
+    <div class="santa-bob">
+      <div id="santaArt" class="santa-art" role="button" tabindex="0" aria-label="Trò chuyện với ông già Noel"></div>
+      <div id="santaBubble" class="bubble" hidden></div>
+    </div>
+  </div>
+  <div id="giftLayer" aria-live="polite"></div>
+  <div id="letterLayer" aria-hidden="true"></div>
+
+  <!-- Linh vật góc màn hình -->
+  <button id="mascot" class="mascot" type="button" aria-label="Ông già Noel nhỏ">
+    <svg viewBox="0 0 80 80" aria-hidden="true">
+      <path d="M14 34 Q40 -6 66 30 L60 36 Q40 16 20 38Z" fill="#d62f2f"/>
+      <circle cx="68" cy="30" r="7" fill="#fff"/>
+      <circle cx="40" cy="44" r="18" fill="#ffd7b5"/>
+      <rect x="14" y="30" width="52" height="9" rx="4" fill="#fff"/>
+      <circle cx="34" cy="42" r="2.5" fill="#222"/>
+      <circle cx="46" cy="42" r="2.5" fill="#222"/>
+      <circle cx="40" cy="48" r="3" fill="#e88"/>
+      <path d="M22 50 Q40 82 58 50 Q40 60 22 50Z" fill="#fff"/>
+      <g class="mascot-hand"><circle cx="70" cy="56" r="6" fill="#fff"/></g>
+    </svg>
+  </button>
+  <div id="mascotBubble" class="bubble mascot-bubble" hidden></div>
+
+  <main class="wrap">
+    <header class="hero">
+      <h1>Giáng Sinh Tháng 12</h1>
+      <p class="sub">Mỗi ngày tháng 12 một niềm vui 🎄</p>
+    </header>
+
+    <section class="card countdown-card">
+      <h2 id="cdTitle">Còn bao lâu tới Noel?</h2>
+      <div id="countdown" class="countdown">
+        <div><b id="cdD">0</b><span>ngày</span></div>
+        <div><b id="cdH">0</b><span>giờ</span></div>
+        <div><b id="cdM">0</b><span>phút</span></div>
+        <div><b id="cdS">0</b><span>giây</span></div>
+      </div>
+      <p id="cdMsg" class="cd-msg" hidden></p>
+    </section>
+
+    <section class="card controls">
+      <button id="btnMusic" class="btn" type="button">🎵 Bật nhạc</button>
+      <button id="btnSanta" class="btn btn-red" type="button">🎅 Gọi ông già Noel</button>
+      <button id="btnDailyGift" class="btn btn-ghost" type="button">🎁 Quà hôm nay</button>
+      <div class="snow-levels" role="group" aria-label="Mức tuyết">
+        <span>❄️ Tuyết:</span>
+        <button type="button" data-snow="light">Nhẹ</button>
+        <button type="button" data-snow="medium">Vừa</button>
+        <button type="button" data-snow="heavy">Dày</button>
+        <button type="button" data-snow="off">Tắt</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>💌 Gửi lời chúc</h2>
+      <form id="wishForm" class="row">
+        <input id="wishName" type="text" maxlength="40" placeholder="Nhập tên của bạn" autocomplete="name">
+        <button class="btn" type="submit">Nhận lời chúc</button>
+      </form>
+      <p id="wishOut" class="wish-out" hidden></p>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>🎁 Lịch mở quà 24 ngày</h2>
+        <label class="toggle"><input id="previewMode" type="checkbox"> Xem thử</label>
+      </div>
+      <p id="adventHint" class="muted"></p>
+      <div id="advent" class="advent"></div>
+    </section>
+
+    <section class="card">
+      <h2>✉️ Thư gửi ông già Noel</h2>
+      <form id="letterForm" class="envelope">
+        <textarea id="letterText" maxlength="500" rows="4" placeholder="Ông già Noel ơi, năm nay con ước..."></textarea>
+        <div class="row">
+          <button class="btn btn-red" type="submit">Gửi thư</button>
+          <button id="btnMailbox" class="btn btn-ghost" type="button">📬 Hộp thư điều ước (<span id="mailCount">0</span>)</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>🎮 Bắt quà cùng ông già Noel</h2>
+      <p class="muted">Kéo túi quà để bắt quà, tránh cục than. Chơi 60 giây, có 3 mạng.</p>
+      <div class="row">
+        <button id="btnGame" class="btn" type="button">Chơi ngay</button>
+        <span class="best">Điểm cao: <b id="bestScore">0</b></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>🌍 Hành trình đêm 24/12</h2>
+        <button id="btnJourneyDemo" class="btn btn-ghost btn-sm" type="button">Xem thử</button>
+      </div>
+      <p id="journeyText" class="muted"></p>
+      <div class="progress"><div id="journeyBar"></div></div>
+      <p id="journeyPlace" class="journey-place"></p>
+    </section>
+
+    <footer class="foot">Giáng Sinh Tháng 12 · Nguyễn Duy Thanh</footer>
+  </main>
+
+  <!-- Hộp thoại mở quà -->
+  <dialog id="giftDialog" class="dlg">
+    <div id="giftIcon" class="gift-icon"></div>
+    <h3 id="giftTitle"></h3>
+    <p id="giftText"></p>
+    <button class="btn" type="button" data-close>Đóng</button>
+  </dialog>
+
+  <!-- Hộp thư điều ước -->
+  <dialog id="mailDialog" class="dlg">
+    <h3>📬 Hộp thư điều ước</h3>
+    <ul id="mailList" class="mail-list"></ul>
+    <button class="btn" type="button" data-close>Đóng</button>
+  </dialog>
+
+  <!-- Mini game -->
+  <dialog id="gameDialog" class="dlg game-dlg">
+    <div class="game-hud">
+      <span>⏱ <b id="gTime">60</b>s</span>
+      <span>⭐ <b id="gScore">0</b></span>
+      <span id="gLives">❤️❤️❤️</span>
+    </div>
+    <canvas id="gameCanvas" width="360" height="480"></canvas>
+    <div class="row game-pad">
+      <button id="gLeft" class="btn" type="button" aria-label="Sang trái">◀</button>
+      <button id="gStart" class="btn btn-red" type="button">Bắt đầu</button>
+      <button id="gRight" class="btn" type="button" aria-label="Sang phải">▶</button>
+    </div>
+    <p id="gMsg" class="muted center"></p>
+    <button class="btn btn-ghost" type="button" data-close>Đóng</button>
+  </dialog>
+
+  <script src="js/storage.js"></script>
+  <script src="js/snow.js"></script>
+  <script src="js/countdown.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/wishes.js"></script>
+  <script src="js/advent.js"></script>
+  <script src="js/santa.js"></script>
+  <script src="js/santa-letter.js"></script>
+  <script src="js/santa-game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

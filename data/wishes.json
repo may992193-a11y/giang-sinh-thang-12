@@ -1,0 +1,78 @@
+{
+  "wishes": [
+    "Chúc {name} một mùa Giáng Sinh ấm áp, an lành bên gia đình! 🎄",
+    "{name} ơi, mong mọi điều ước của bạn đều thành hiện thực đêm Noel này! ✨",
+    "Chúc {name} luôn vui vẻ, khỏe mạnh và nhận thật nhiều quà nhé! 🎁",
+    "Giáng Sinh an lành, {name}! Mong năm mới đến với bạn thật rực rỡ. 🌟",
+    "Gửi {name} một chiếc ôm thật ấm giữa mùa đông lạnh giá. 🤗",
+    "Chúc {name} có một đêm Noel lung linh và thật nhiều tiếng cười! 🔔",
+    "Ông già Noel nói {name} năm nay rất ngoan, quà to đang tới đó! 🎅"
+  ],
+  "santaQuotes": [
+    "Ho ho ho! Con đã ngoan chưa nào?",
+    "Tuần lộc của ông hôm nay chạy nhanh lắm!",
+    "Ông đang đi kiểm tra danh sách các bạn ngoan đây.",
+    "Nhớ uống sữa ấm trước khi ngủ nhé, ông cũng thích bánh quy lắm!",
+    "Ho ho ho! Tuyết năm nay đẹp quá phải không?",
+    "Đừng quên viết thư cho ông nhé, ông đọc hết đấy!",
+    "Chú tuần lộc mũi đỏ đang soi đường cho ông đó.",
+    "Yêu thương là món quà quý nhất, con ạ!"
+  ],
+  "giftDrops": [
+    { "icon": "🎁", "title": "Lời chúc từ ông già Noel", "text": "Chúc con một ngày thật nhiều niềm vui!" },
+    { "icon": "🍬", "title": "Kẹo gậy ngọt ngào", "text": "Ngọt như nụ cười của con vậy đó!" },
+    { "icon": "🧸", "title": "Gấu bông ấm áp", "text": "Ôm một cái thật chặt cho đỡ lạnh nhé!" },
+    { "icon": "🏷️", "title": "Mã giảm giá cho shop", "text": "Nhập mã NOEL10 để được giảm 10% tại shop Facebook của Thanh." },
+    { "icon": "🏷️", "title": "Mã giảm giá cho shop", "text": "Nhập mã GIANGSINH15 để được giảm 15% đơn hàng tháng 12." },
+    { "icon": "⭐", "title": "Ngôi sao may mắn", "text": "Hôm nay con sẽ gặp điều tốt lành đó!" },
+    { "icon": "🍪", "title": "Bánh quy gừng", "text": "Ông nướng riêng cho con đấy. Ho ho ho!" }
+  ],
+  "mascot": {
+    "far": "Còn {days} ngày nữa tới Noel. Mỗi ngày mở một ô quà nhé!",
+    "near": "Chỉ còn {days} ngày thôi! Ông đang chuẩn bị quà rồi đó.",
+    "eve": "Đêm nay ông sẽ đi phát quà khắp thế giới. Ngủ sớm nhé!",
+    "day": "Giáng Sinh vui vẻ! Ho ho ho! 🎄",
+    "after": "Noel năm sau còn {days} ngày. Ông nhớ con lắm!"
+  },
+  "intro": {
+    "greetName": "Ho ho ho! Chào {name}! Ông nhớ con lắm đó!",
+    "greet": "Ho ho ho! Chào con! Ông ghé thăm con đây!",
+    "offer": "Ông có quà cho con nè. Chạm vào hộp quà nhé!",
+    "opened": "Đây là lời chúc ông dành riêng cho con hôm nay!",
+    "bye": "Tạm biệt con! Ông vẫn ở quanh đây thôi. Ho ho ho!"
+  },
+  "dailyWishes": [
+    "Chúc bạn một ngày thật bình an và đầy tiếng cười!",
+    "Mong hôm nay mọi việc của bạn đều suôn sẻ như ý.",
+    "Chúc bạn gặp thật nhiều người tử tế trong ngày hôm nay.",
+    "Hôm nay hãy mỉm cười thật nhiều, may mắn sẽ tìm đến bạn!",
+    "Chúc bạn một ngày ấm áp như cốc ca cao nóng giữa mùa đông.",
+    "Mong bạn có một giấc ngủ ngon và những giấc mơ thật đẹp.",
+    "Chúc gia đình bạn luôn khỏe mạnh và hạnh phúc.",
+    "Hôm nay bạn sẽ nhận được một tin vui bất ngờ đó!",
+    "Chúc bạn đủ dũng cảm để làm điều mình hằng mong ước.",
+    "Mong mọi lo lắng của bạn tan đi như tuyết gặp nắng.",
+    "Chúc bạn một ngày làm việc hiệu quả và thật nhẹ nhàng.",
+    "Hãy dành cho mình một khoảng nghỉ ngơi thật trọn vẹn hôm nay nhé!",
+    "Chúc bạn luôn có bạn bè thân thiết ở bên cạnh.",
+    "Mong trái tim bạn hôm nay tràn đầy yêu thương.",
+    "Chúc bạn tìm thấy niềm vui trong những điều thật nhỏ bé.",
+    "Hôm nay là một ngày tuyệt vời để bắt đầu điều mới!",
+    "Chúc bạn buôn may bán đắt, đơn hàng nhiều như tuyết rơi!",
+    "Mong bạn luôn giữ được nụ cười rạng rỡ như ánh đèn Noel.",
+    "Chúc bạn khỏe mạnh, ăn ngon và ngủ thật say.",
+    "Mong mọi điều ước nhỏ của bạn hôm nay đều thành hiện thực.",
+    "Chúc bạn một ngày được yêu thương và được lắng nghe.",
+    "Hôm nay hãy gửi một lời cảm ơn, bạn sẽ thấy lòng nhẹ tênh.",
+    "Chúc bạn một ngày rực rỡ như ngôi sao trên đỉnh cây thông.",
+    "Mong bạn đón đêm Giáng Sinh thật ấm áp bên người thân yêu.",
+    "Giáng Sinh an lành! Chúc bạn một năm mới thật nhiều phép màu.",
+    "Chúc bạn giữ mãi niềm vui của mùa lễ hội trong tim.",
+    "Mong năm tới của bạn bình an, thuận lợi và nhiều thành công.",
+    "Chúc bạn có thật nhiều kỷ niệm đẹp trong mùa đông này.",
+    "Hôm nay hãy tự thưởng cho mình một điều thật dễ thương nhé!",
+    "Chúc bạn khép lại năm cũ thật nhẹ nhàng và mãn nguyện.",
+    "Chúc mừng năm mới! Mong mọi điều tốt đẹp nhất đến với bạn."
+  ],
+  "christmas":"🎄 Merry Christmas! Chúc bạn Giáng Sinh an lành và hạnh phúc! 🎄"
+}
