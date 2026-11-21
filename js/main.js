@@ -60,9 +60,9 @@
     GS.game.init();
   }
 
-  Promise.all([loadJSON('data/gifts.json'), loadJSON('data/wishes.json')])
+  Promise.all([loadJSON('data/gifts.json'), loadJSON('data/wishes.json'), loadJSON('data/songs.json')])
     .then(function (res) {
-      GS.data = { gifts: res[0], wishes: res[1] };
+      GS.data = { gifts: res[0], wishes: res[1], songs: res[2] };
       start();
     })
     .catch(function () {

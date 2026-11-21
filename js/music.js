@@ -8,6 +8,8 @@ GS.music = (function () {
   var BEAT = 0.26;
 
   var ctx = null, master = null, playing = false, timer = null, index = 0, nextTime = 0;
+  var MAX_GAIN = 0.5;
+  var volume = 70, muted = false;   // 0–100, dùng chung cho Web Audio và YouTube
 
   function audio() {
     if (!ctx) {
@@ -15,7 +17,7 @@ GS.music = (function () {
       if (!AC) return null;
       ctx = new AC();
       master = ctx.createGain();
-      master.gain.value = 0.35;
+      master.gain.value = effectiveVolume() / 100 * MAX_GAIN;
       master.connect(ctx.destination);
     }
     if (ctx.state === 'suspended') ctx.resume();
@@ -122,15 +124,142 @@ GS.music = (function () {
     updateButton();
   }
 
+  // ---------- Nhạc Giáng Sinh trên YouTube (trình phát nhúng chính thức) ----------
+  var yt = { player: null, index: 0, playing: false, errors: 0, songs: [] };
+
+  function loadYouTubeApi(cb) {
+    if (window.YT && window.YT.Player) return cb();
+    var prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function () { if (prev) prev(); cb(); };
+    if (!document.getElementById('ytApi')) {
+      var s = document.createElement('script');
+      s.id = 'ytApi';
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    }
+  }
+
+  function renderSongs() {
+    var list = document.getElementById('songList');
+    list.replaceChildren();
+    yt.songs.forEach(function (song, i) {
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'song' + (i === yt.index && yt.player ? ' active' : '');
+      var t = document.createElement('b');
+      t.textContent = song.title;
+      var a = document.createElement('span');
+      a.textContent = song.artist;
+      b.append(t, a);
+      b.addEventListener('click', function () { playSong(i); });
+      li.appendChild(b);
+      list.appendChild(li);
+    });
+  }
+
+  function showNow(text) {
+    document.getElementById('ytNow').textContent = text;
+  }
+
+  function playSong(i) {
+    yt.index = (i + yt.songs.length) % yt.songs.length;
+    var song = yt.songs[yt.index];
+    setPlaying(false);
+    document.getElementById('ytBox').hidden = false;
+    document.getElementById('ytBar').hidden = false;
+    showNow('🎶 ' + song.title + ' – ' + song.artist);
+    if (yt.player) {
+      yt.player.loadVideoById(song.id);
+    } else {
+      loadYouTubeApi(function () {
+        yt.player = new YT.Player('ytPlayer', {
+          host: 'https://www.youtube-nocookie.com',
+          width: '100%', height: '100%',
+          videoId: yt.songs[yt.index].id,
+          playerVars: { autoplay: 1, playsinline: 1, rel: 0 },
+          events: {
+            onReady: function (e) { e.target.setVolume(effectiveVolume()); e.target.playVideo(); },
+            onStateChange: onYtState,
+            onError: onYtError
+          }
+        });
+      });
+    }
+    renderSongs();
+  }
+
+  function onYtState(e) {
+    if (e.data === YT.PlayerState.PLAYING) {
+      yt.playing = true;
+      yt.errors = 0;
+      setPlaying(false);
+    } else if (e.data === YT.PlayerState.ENDED) {
+      yt.playing = false;
+      playSong(yt.index + 1);
+    } else if (e.data === YT.PlayerState.PAUSED) {
+      yt.playing = false;
+    }
+  }
+
+  // Một số video bị chủ kênh chặn phát trên web khác: báo rồi chuyển bài.
+  function onYtError() {
+    yt.playing = false;
+    yt.errors++;
+    if (yt.errors >= yt.songs.length) return showNow('⚠️ Hiện không phát được bài nào, bạn thử lại sau nhé.');
+    showNow('⚠️ Bài này không phát được ở đây, đang chuyển bài tiếp...');
+    setTimeout(function () { playSong(yt.index + 1); }, 1500);
+  }
+
+  // ---------- Âm lượng ----------
+  function effectiveVolume() { return muted ? 0 : volume; }
+
+  function applyVolume() {
+    var v = effectiveVolume();
+    if (master) master.gain.setTargetAtTime(v / 100 * MAX_GAIN, ctx.currentTime, 0.05);
+    if (yt.player && yt.player.setVolume) yt.player.setVolume(v);
+    document.getElementById('volRange').value = volume;
+    document.getElementById('volText').textContent = muted ? 'Tắt' : volume + '%';
+    document.getElementById('volMute').textContent = muted || volume === 0 ? '🔇' : volume < 40 ? '🔉' : '🔊';
+    GS.storage.set('volume', { value: volume, muted: muted });
+  }
+
+  function setVolume(v) {
+    volume = Math.max(0, Math.min(100, Math.round(v / 5) * 5));
+    if (volume > 0) muted = false;
+    applyVolume();
+  }
+
+  function initVolume() {
+    var saved = GS.storage.get('volume', null);
+    if (saved) { volume = saved.value; muted = saved.muted; }
+    applyVolume();
+    document.getElementById('volRange').addEventListener('input', function (e) { setVolume(Number(e.target.value)); });
+    document.getElementById('volDown').addEventListener('click', function () { setVolume(volume - 10); });
+    document.getElementById('volUp').addEventListener('click', function () { setVolume(volume + 10); });
+    document.getElementById('volMute').addEventListener('click', function () { muted = !muted; applyVolume(); });
+  }
+
+  function pauseYouTube() {
+    if (yt.player && yt.player.pauseVideo && yt.playing) yt.player.pauseVideo();
+  }
+
   function init() {
     document.getElementById('btnMusic').addEventListener('click', function () {
       toggle();
+      if (playing) pauseYouTube();
       updateButton();
     });
+    initVolume();
+    yt.songs = (GS.data && GS.data.songs) || [];
+    renderSongs();
+    document.getElementById('ytPrev').addEventListener('click', function () { playSong(yt.index - 1); });
+    document.getElementById('ytNext').addEventListener('click', function () { playSong(yt.index + 1); });
   }
 
   return {
     init: init, hohoho: hohoho, jingle: jingle, clap: clap,
-    setPlaying: setPlaying, isPlaying: function () { return playing; }
+    setPlaying: setPlaying, isPlaying: function () { return playing; },
+    isYouTubePlaying: function () { return yt.playing; }
   };
 })();

@@ -205,6 +205,13 @@
       <button id="btnMusic" class="btn" type="button">🎵 Bật nhạc</button>
       <button id="btnSanta" class="btn btn-red" type="button">🎅 Gọi ông già Noel</button>
       <button id="btnDailyGift" class="btn btn-ghost" type="button">🎁 Quà hôm nay</button>
+      <div class="volume" role="group" aria-label="Âm lượng">
+        <button id="volMute" class="vol-btn" type="button" aria-label="Tắt/bật tiếng">🔊</button>
+        <button id="volDown" class="vol-btn" type="button" aria-label="Giảm âm lượng">−</button>
+        <input id="volRange" type="range" min="0" max="100" step="5" value="70" aria-label="Âm lượng">
+        <button id="volUp" class="vol-btn" type="button" aria-label="Tăng âm lượng">+</button>
+        <span id="volText" class="vol-text">70%</span>
+      </div>
       <div class="snow-levels" role="group" aria-label="Mức tuyết">
         <span>❄️ Tuyết:</span>
         <button type="button" data-snow="light">Nhẹ</button>
@@ -212,6 +219,18 @@
         <button type="button" data-snow="heavy">Dày</button>
         <button type="button" data-snow="off">Tắt</button>
       </div>
+    </section>
+
+    <section class="card">
+      <h2>📻 Nhạc Giáng Sinh trên YouTube</h2>
+      <p class="muted">Chọn một bài để nghe, hết bài sẽ tự chuyển sang bài tiếp theo.</p>
+      <div id="ytBox" class="yt-box" hidden><div id="ytPlayer"></div></div>
+      <div id="ytBar" class="row yt-bar" hidden>
+        <button id="ytPrev" class="btn btn-ghost btn-sm" type="button" aria-label="Bài trước">⏮</button>
+        <p id="ytNow" class="yt-now"></p>
+        <button id="ytNext" class="btn btn-ghost btn-sm" type="button" aria-label="Bài tiếp">⏭</button>
+      </div>
+      <ol id="songList" class="song-list"></ol>
     </section>
 
     <section class="card">

@@ -203,7 +203,8 @@ GS.snow = (function () {
 
   // Cây thông lớn lên, đèn đổi màu theo nhịp Jingle Bells (phần chuyển động nằm trong CSS).
   function startTree() {
-    var startedMusic = !GS.music.isPlaying();
+    // Đang nghe nhạc YouTube thì giữ nguyên, không bật thêm Jingle Bells.
+    var startedMusic = !GS.music.isPlaying() && !GS.music.isYouTubePlaying();
     if (startedMusic) GS.music.setPlaying(true);
     document.body.classList.add('tree-show');
     return {
