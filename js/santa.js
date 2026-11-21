@@ -160,6 +160,13 @@ GS.santa = (function () {
     var texts = GS.data.wishes.intro;
     var timers = [], closed = false;
 
+    // Người nhận mở link quà: vào thẳng hộp quà, không chạy màn chào.
+    if (GS.share.hasGift()) {
+      intro.hidden = true;
+      onDone();
+      return;
+    }
+
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
     function speak(text) { bubbleEl.textContent = text; bubbleEl.hidden = false; }
 
@@ -232,7 +239,8 @@ GS.santa = (function () {
   }
 
   // ---------- Gửi lời chúc: ông mang cuộn thư tới, đọc, rồi tạo bất ngờ ----------
-  function deliver(name, wish, onDone) {
+  // from (không bắt buộc): tên người gửi, khi lời chúc đến từ link quà.
+  function deliver(name, wish, onDone, from) {
     var box = document.getElementById('wishShow');
     var scroll = document.getElementById('wsScroll');
     var chimney = document.getElementById('wsChimney');
@@ -262,7 +270,7 @@ GS.santa = (function () {
     sleigh.classList.remove('takeoff');
     [scroll, chimney, sleigh, santa, bubbleEl, clapEl].forEach(function (el) { el.hidden = true; });
     scroll.classList.remove('open');
-    ['wsTo', 'wsName', 'wsColon', 'wsBody'].forEach(function (id) { document.getElementById(id).textContent = ''; });
+    ['wsTo', 'wsName', 'wsColon', 'wsBody', 'wsFrom'].forEach(function (id) { document.getElementById(id).textContent = ''; });
 
     document.body.classList.add('intro-on');
     box.hidden = false;
@@ -296,13 +304,15 @@ GS.santa = (function () {
     }
 
     // 2. Cười "Ho ho ho", cầm cuộn giấy đỏ có nơ vàng rồi mở ra đọc.
-    later(function () { speak(texts.arrive.replace(/\{name\}/g, name)); GS.music.hohoho(); }, arrive);
+    var arriveText = from ? texts.arriveFrom.replace(/\{from\}/g, from) : texts.arrive;
+    later(function () { speak(arriveText.replace(/\{name\}/g, name)); GS.music.hohoho(); }, arrive);
     later(function () { speak(texts.read); scroll.hidden = false; }, arrive + 1500);
     later(function () { scroll.classList.add('open'); typeWish(); }, arrive + 2300);
 
     // Từng chữ hiện ra như đang viết tay, tên người nhận tô vàng kim.
     function typeWish() {
       var parts = [['wsTo', 'Gửi '], ['wsName', name], ['wsColon', ': '], ['wsBody', wish]];
+      if (from) parts.push(['wsFrom', '— ' + from]);
       var p = 0, c = 0;
       (function step() {
         if (finished) return;

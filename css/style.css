@@ -326,3 +326,32 @@ input[type="text"], textarea {
 .vol-btn:hover { background: rgba(255, 255, 255, .2); }
 #volRange { flex: 1; min-width: 80px; accent-color: var(--gold); cursor: pointer; }
 .vol-text { width: 3em; text-align: right; color: var(--muted); font-size: .9rem; }
+
+/* Gửi link lời chúc kèm nhạc */
+.share-form { display: flex; flex-direction: column; gap: 8px; }
+.share-form .field { font-size: .9rem; color: var(--muted); margin-top: 4px; }
+.share-form select, .sh-result input {
+  font: inherit;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, .92);
+  color: #1b2340;
+}
+.share-form .row select { flex: 1 1 200px; width: auto; }
+.share-form textarea { width: 100%; resize: vertical; }
+.share-form .btn-red { align-self: flex-start; }
+.privacy {
+  margin: 4px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(77, 195, 255, .12);
+  color: var(--muted);
+  font-size: .88rem;
+}
+.sh-error { margin: 0; color: #ff8a80; font-weight: 600; }
+.sh-result { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.sh-result .btn { text-decoration: none; }
+.sh-result[hidden] { display: none; }
+.sh-result input { flex: none; }

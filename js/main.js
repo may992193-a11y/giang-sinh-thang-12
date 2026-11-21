@@ -50,6 +50,7 @@
   function start() {
     makeStars();
     initDialogs();
+    GS.share.parse();
     GS.snow.init();
     GS.countdown.init();
     GS.music.init();
@@ -58,6 +59,7 @@
     GS.santa.init();
     GS.letter.init();
     GS.game.init();
+    GS.share.init();
   }
 
   Promise.all([loadJSON('data/gifts.json'), loadJSON('data/wishes.json'), loadJSON('data/songs.json')])

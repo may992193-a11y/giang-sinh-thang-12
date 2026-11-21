@@ -43,6 +43,7 @@
   },
   "delivery": {
     "arrive": "Ho ho ho! Ông có thư chúc gửi {name} đây!",
+    "arriveFrom": "Ho ho ho! {from} nhờ ông mang thư chúc tới {name} đây!",
     "read": "Để ông đọc nhé...",
     "wink": "Khoan đã, còn một bất ngờ nữa! 😉",
     "bye": "Giáng Sinh vui vẻ! Ông đi đây. Ho ho ho!"

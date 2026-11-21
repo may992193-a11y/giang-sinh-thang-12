@@ -1,11 +1,45 @@
-// Nhạc Jingle Bells (1857, hết bản quyền), tiếng chuông và "Ho ho ho" bằng Web Audio.
+// 5 bài Giáng Sinh đã hết bản quyền, tiếng chuông và "Ho ho ho" bằng Web Audio; trình phát nhạc YouTube.
 GS.music = (function () {
-  var N = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.0, C5: 523.25 };
-  var A = [['E4',1],['E4',1],['E4',2],['E4',1],['E4',1],['E4',2],['E4',1],['G4',1],['C4',1.5],['D4',0.5],['E4',4],
-           ['F4',1],['F4',1],['F4',1.5],['F4',0.5],['F4',1],['E4',1],['E4',1],['E4',0.5],['E4',0.5]];
-  var MELODY = A.concat([['E4',1],['D4',1],['D4',1],['E4',1],['D4',2],['G4',2]])
-                .concat(A, [['G4',1],['G4',1],['F4',1],['D4',1],['C4',4]]);
-  var BEAT = 0.26;
+  // Đổi tên nốt (vd "F#4") sang tần số Hz.
+  var STEPS = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  function freq(name) {
+    var m = /^([A-G])(#|b)?(\d)$/.exec(name);
+    var midi = 12 * (Number(m[3]) + 1) + STEPS[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0);
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  }
+
+  var JB = [['E4',1],['E4',1],['E4',2],['E4',1],['E4',1],['E4',2],['E4',1],['G4',1],['C4',1.5],['D4',0.5],['E4',4],
+            ['F4',1],['F4',1],['F4',1.5],['F4',0.5],['F4',1],['E4',1],['E4',1],['E4',0.5],['E4',0.5]];
+  var SN = [['G4',1.5],['A4',0.5],['G4',1],['E4',3]];
+  var SN2 = [['A4',2],['A4',1],['C5',1.5],['B4',0.5],['A4',1]];
+  var DK = [['G4',1.5],['F4',0.5],['E4',1],['D4',1],['C4',1],['D4',1],['E4',1],['C4',1],
+            ['D4',0.5],['E4',0.5],['F4',0.5],['D4',0.5],['E4',1.5],['D4',0.5],['C4',1],['B3',1],['C4',2]];
+  var OT = [['G3',1],['C4',0.75],['C4',0.25],['C4',1.5],['D4',0.5],['E4',0.75],['E4',0.25],['E4',1.5],['E4',0.5],
+            ['D4',0.5],['E4',0.5],['F4',1],['B3',1],['D4',1],['C4',2]];
+
+  // Các bài đều sáng tác từ thế kỷ 16–19, đã hết bản quyền.
+  var SONGS = {
+    jingle: { name: 'Jingle Bells', beat: 0.26, bells: true,
+      notes: JB.concat([['E4',1],['D4',1],['D4',1],['E4',1],['D4',2],['G4',2]], JB, [['G4',1],['G4',1],['F4',1],['D4',1],['C4',4]]) },
+    wewish: { name: 'We Wish You a Merry Christmas', beat: 0.3, bells: true,
+      notes: [['D4',1],['G4',1],['G4',0.5],['A4',0.5],['G4',0.5],['F#4',0.5],['E4',1],['C4',1],['E4',1],
+              ['A4',1],['A4',0.5],['B4',0.5],['A4',0.5],['G4',0.5],['F#4',1],['D4',1],['D4',1],
+              ['B4',1],['B4',0.5],['C5',0.5],['B4',0.5],['A4',0.5],['G4',1],['E4',1],['D4',0.5],['D4',0.5],
+              ['E4',1],['A4',1],['F#4',1],['G4',2]] },
+    silent: { name: 'Silent Night (Đêm thánh vô cùng)', beat: 0.36, bells: false,
+      notes: SN.concat(SN, [['D5',2],['D5',1],['B4',3],['C5',2],['C5',1],['G4',3]], SN2, SN, SN2, SN,
+              [['D5',2],['D5',1],['F5',1.5],['D5',0.5],['B4',1],['C5',3],['E5',3],
+               ['C5',1.5],['G4',0.5],['E4',1],['G4',1.5],['F4',0.5],['D4',1],['C4',6]]) },
+    deck: { name: 'Deck the Halls', beat: 0.27, bells: true,
+      notes: DK.concat(DK, [['D4',1.5],['E4',0.5],['F4',1],['D4',1],['E4',1.5],['F4',0.5],['G4',1],['D4',1],
+              ['E4',0.5],['F#4',0.5],['G4',1],['A4',0.5],['B4',0.5],['C5',1],['B4',1],['A4',1],['G4',2],
+              ['G4',1.5],['F4',0.5],['E4',1],['D4',1],['C4',1],['D4',1],['E4',1],['C4',1],
+              ['A4',0.5],['A4',0.5],['A4',0.5],['A4',0.5],['G4',1.5],['F4',0.5],['E4',1],['D4',1],['C4',2]]) },
+    tree: { name: 'O Christmas Tree', beat: 0.34, bells: false,
+      notes: OT.concat([['G4',0.5],['G4',0.5],['E4',0.5],['A4',1.5],['G4',0.5],['G4',0.5],['F4',0.5],['F4',1.5],
+              ['F4',0.5],['F4',0.5],['D4',0.5],['G4',1.5],['F4',0.5],['F4',0.5],['E4',1.5]], OT) }
+  };
+  var current = 'jingle';
 
   var ctx = null, master = null, playing = false, timer = null, index = 0, nextTime = 0;
   var MAX_GAIN = 0.5;
@@ -42,15 +76,16 @@ GS.music = (function () {
   }
 
   function schedule() {
+    var song = SONGS[current];
     while (nextTime < ctx.currentTime + 0.3) {
-      var note = MELODY[index];
-      var dur = note[1] * BEAT;
-      tone(N[note[0]], nextTime, dur * 0.9, 'triangle', 0.45);
-      tone(N[note[0]] / 2, nextTime, dur * 0.9, 'sine', 0.2);
-      if (note[1] >= 1) bell(nextTime);
+      var note = song.notes[index];
+      var dur = note[1] * song.beat, f = freq(note[0]);
+      tone(f, nextTime, dur * 0.9, 'triangle', 0.45);
+      tone(f / 2, nextTime, dur * 0.9, 'sine', 0.2);
+      if (song.bells && note[1] >= 1) bell(nextTime);
       nextTime += dur;
-      index = (index + 1) % MELODY.length;
-      if (index === 0) nextTime += BEAT * 2;
+      index = (index + 1) % song.notes.length;
+      if (index === 0) nextTime += song.beat * 2;
     }
   }
 
@@ -58,6 +93,7 @@ GS.music = (function () {
     if (!audio()) return false;
     playing = !playing;
     if (playing) {
+      pauseYouTube();
       index = 0;
       nextTime = ctx.currentTime + 0.1;
       schedule();
@@ -122,6 +158,18 @@ GS.music = (function () {
   function setPlaying(on) {
     if (on !== playing) toggle();
     updateButton();
+  }
+
+  // Phát một bài cụ thể từ đầu (dùng cho Nghe thử và khi mở link quà).
+  function playMelody(key) {
+    if (!SONGS[key]) key = 'jingle';
+    if (playing) setPlaying(false);
+    current = key;
+    setPlaying(true);
+  }
+
+  function songList() {
+    return Object.keys(SONGS).map(function (k) { return { key: k, name: SONGS[k].name }; });
   }
 
   // ---------- Nhạc Giáng Sinh trên YouTube (trình phát nhúng chính thức) ----------
@@ -260,6 +308,7 @@ GS.music = (function () {
   return {
     init: init, hohoho: hohoho, jingle: jingle, clap: clap,
     setPlaying: setPlaying, isPlaying: function () { return playing; },
+    playMelody: playMelody, songList: songList, currentMelody: function () { return current; },
     isYouTubePlaying: function () { return yt.playing; }
   };
 })();

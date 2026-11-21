@@ -74,7 +74,7 @@
     <div id="wsScroll" class="ws-scroll" hidden>
       <div class="rod"><span class="gift-bow gold-bow"></span></div>
       <div class="ws-paper">
-        <p class="ws-text"><span id="wsTo"></span><b id="wsName" class="ws-name"></b><span id="wsColon"></span><span id="wsBody"></span></p>
+        <p class="ws-text"><span id="wsTo"></span><b id="wsName" class="ws-name"></b><span id="wsColon"></span><span id="wsBody"></span><span id="wsFrom" class="ws-from"></span></p>
       </div>
       <div class="rod"></div>
     </div>
@@ -89,6 +89,17 @@
         <span id="wsClap" class="ws-clap" hidden>👏</span>
       </div>
     </div>
+  </div>
+
+  <!-- Người nhận mở link quà: chạm hộp quà để phát nhạc và nghe ông đọc lời chúc -->
+  <div id="giftLink" class="intro gift-link" role="dialog" aria-modal="true" aria-label="Quà Giáng Sinh" hidden>
+    <div class="intro-flakes" aria-hidden="true"></div>
+    <p id="glTitle" class="gl-title"></p>
+    <button id="glGift" class="intro-gift gl-gift" type="button" aria-label="Mở hộp quà">
+      <span class="gift-lid"><span class="gift-bow"></span></span>
+      <span class="gift-base"></span>
+    </button>
+    <p class="gl-hint">👆 Chạm vào hộp quà để mở</p>
   </div>
 
   <!-- Bầu trời -->
@@ -247,6 +258,38 @@
       </div>
     </section>
 
+    <section id="shareCard" class="card">
+      <h2>🔗 Gửi link lời chúc kèm nhạc</h2>
+      <p id="replyNote" class="wish-out" hidden></p>
+      <p class="muted">Tạo một đường link để gửi qua Zalo, Messenger. Người nhận mở ra sẽ thấy hộp quà, nghe nhạc và được ông già Noel đọc lời chúc.</p>
+      <form id="shareForm" class="share-form">
+        <div class="row">
+          <input id="shTo" type="text" maxlength="30" placeholder="Tên người nhận" autocomplete="off">
+          <input id="shFrom" type="text" maxlength="30" placeholder="Tên của bạn" autocomplete="off">
+        </div>
+        <label class="field" for="shWish">Lời chúc</label>
+        <select id="shWish"></select>
+        <textarea id="shCustom" maxlength="200" rows="3" placeholder="Viết lời chúc của bạn (tối đa 200 chữ)..." hidden></textarea>
+        <label class="field" for="shSong">Nhạc gửi kèm</label>
+        <div class="row">
+          <select id="shSong"></select>
+          <button id="shPreview" class="btn btn-ghost btn-sm" type="button">▶ Nghe thử</button>
+        </div>
+        <p class="privacy">🔒 Ai có link cũng đọc được lời chúc. Đừng ghi số điện thoại, địa chỉ hay thông tin riêng tư vào đây nhé.</p>
+        <p id="shError" class="sh-error" hidden></p>
+        <button class="btn btn-red" type="submit">🎁 Tạo link quà</button>
+      </form>
+      <div id="shResult" class="sh-result" hidden>
+        <input id="shLink" type="text" readonly aria-label="Link quà Giáng Sinh">
+        <div class="row">
+          <button id="shCopy" class="btn" type="button">📋 Sao chép link</button>
+          <button id="shShare" class="btn btn-red" type="button">📤 Chia sẻ</button>
+          <a id="shOpen" class="btn btn-ghost" target="_blank" rel="noopener">👀 Xem thử</a>
+        </div>
+        <p id="shStatus" class="muted"></p>
+      </div>
+    </section>
+
     <section class="card">
       <div class="card-head">
         <h2>🎁 Lịch mở quà 24 ngày</h2>
@@ -330,6 +373,7 @@
   <script src="js/santa.js"></script>
   <script src="js/santa-letter.js"></script>
   <script src="js/santa-game.js"></script>
+  <script src="js/share-link.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
