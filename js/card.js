@@ -305,21 +305,54 @@ GS.card = (function () {
     document.body.classList.add('intro-on');
     view.hidden = false;
 
-    // Hộp nhạc: đổi bài, tắt/bật nhạc.
+    // Nhạc người gửi đã chọn: nhạc chuông (Web Audio) hoặc bài YouTube (khung video dưới thiệp).
     var songSel = document.getElementById('cvSong');
     var mute = document.getElementById('cvMute');
-    GS.music.songList().forEach(function (s) {
-      var o = document.createElement('option');
-      o.value = s.key;
-      o.textContent = '🎵 ' + s.name;
-      songSel.appendChild(o);
-    });
+    var ytBox = document.getElementById('cvYt');
+    var now = document.getElementById('cvNow');
+    var current = gift.song;
+
+    function ytOf(value) { return value.indexOf('yt:') === 0 ? value.slice(3) : null; }
+    function isOn() { return ytOf(current) ? GS.music.isYouTubePlayingIn('cvYtPlayer') : GS.music.isPlaying(); }
+    function updateMute() { mute.textContent = isOn() ? '🔇 Tắt nhạc' : '🔊 Bật nhạc'; }
+
+    // Bài YouTube bị chặn phát trên web khác thì chuyển sang Jingle Bells.
+    function ytFailed() {
+      ytBox.hidden = true;
+      current = 'jingle';
+      songSel.value = 'jingle';
+      GS.music.playMelody('jingle');
+      now.textContent = '🎵 Bài YouTube không phát được ở đây, đang phát Jingle Bells';
+      updateMute();
+    }
+
+    function playMusic(value) {
+      current = value;
+      var id = ytOf(value);
+      now.textContent = '🎵 ' + GS.music.choiceName(value);
+      now.hidden = false;
+      if (id) {
+        ytBox.hidden = false;
+        GS.music.playYouTubeIn('cvYtPlayer', id, { loop: true, onError: ytFailed });
+      } else {
+        GS.music.stopYouTubeIn('cvYtPlayer');
+        ytBox.hidden = true;
+        GS.music.playMelody(value);
+      }
+    }
+
+    if (ytOf(gift.song)) GS.music.prepareYouTubeIn('cvYtPlayer', ytOf(gift.song), { loop: true, onError: ytFailed });
+
+    // Hộp nhạc: đổi bài, tắt/bật nhạc.
+    GS.music.fillSongSelect(songSel);
     songSel.value = gift.song;
-    function updateMute() { mute.textContent = GS.music.isPlaying() ? '🔇 Tắt nhạc' : '🔊 Bật nhạc'; }
-    songSel.addEventListener('change', function () { GS.music.playMelody(songSel.value); updateMute(); });
+    songSel.addEventListener('change', function () { playMusic(songSel.value); setTimeout(updateMute, 1200); updateMute(); });
     mute.addEventListener('click', function () {
-      if (GS.music.isPlaying()) GS.music.setPlaying(false);
-      else GS.music.playMelody(songSel.value);
+      if (isOn()) {
+        GS.music.setPlaying(false);
+        GS.music.stopYouTubeIn('cvYtPlayer');
+      } else playMusic(current);
+      setTimeout(updateMute, 800);
       updateMute();
     });
     document.getElementById('cvMusicBtn').addEventListener('click', function () {
@@ -336,6 +369,7 @@ GS.card = (function () {
     document.getElementById('cvCreate').addEventListener('click', function () {
       timers.forEach(clearTimeout);
       GS.snow.stopFx();
+      GS.music.stopYouTubeIn('cvYtPlayer');
       view.classList.add('leaving');
       setTimeout(function () {
         view.hidden = true;
@@ -349,7 +383,7 @@ GS.card = (function () {
       if (env.classList.contains('open')) return;
       env.classList.add('open');
       hint.hidden = true;
-      GS.music.playMelody(gift.song);
+      playMusic(gift.song);
       if (isIOS()) document.getElementById('cvIos').hidden = false;
 
       later(function () { env.classList.add('gone'); }, 1100);

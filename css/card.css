@@ -208,3 +208,14 @@
   border: 1px solid var(--card-border);
   background: rgba(255, 255, 255, .92); color: #1b2340;
 }
+
+/* Nhạc YouTube gửi kèm thiệp: khung video nhỏ (YouTube yêu cầu tối thiểu 200px) */
+.mini-yt { min-height: 200px; margin: 4px 0; }
+.cv-yt { width: min(86vw, 380px); min-height: 200px; margin: 6px 0 0; flex: none; }
+.cv-now { margin: 4px 0 0; color: var(--gold); font-weight: 600; text-align: center; }
+.cv-now[hidden] { display: none; }
+.cv-music select { max-width: min(86vw, 320px); }
+/* Tên bài YouTube dài không được đẩy form tràn ngang màn hình */
+.maker > *, .share-form, .share-form .row > * { min-width: 0; }
+.share-form select, .cv-music select { max-width: 100%; text-overflow: ellipsis; }
+.share-form .row select { flex: 1 1 160px; min-width: 0; width: 100%; }

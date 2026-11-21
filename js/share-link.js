@@ -1,6 +1,7 @@
 // Tạo thiệp và đường link lời chúc kèm nhạc để gửi bạn bè; đọc link khi người nhận mở.
 // Lời chúc nằm ngay trong link, nên chạy được trên GitHub Pages mà không cần máy chủ.
 // Dạng link: ?to=Lan&from=Thanh&w=3&m=silent-night&t=lang-tuyet  (lời chúc tự viết: wc=<mã hóa>)
+// Nhạc YouTube: m=yt-<mã video>, chỉ nhận các bài có trong data/songs.json.
 GS.share = (function () {
   var MAX_NAME = 30, MAX_WISH = 200, MAX_CODE = 2000;
   var SONG_SLUGS = {
@@ -50,7 +51,9 @@ GS.share = (function () {
           var n = parseInt(q.get('w'), 10);
           if (n >= 1 && n <= presets().length) wish = presets()[n - 1];
         }
-        gift = { to: q.get('to'), from: q.get('from'), wish: wish, song: SONG_SLUGS[q.get('m')], tpl: q.get('t') };
+        var m = q.get('m') || '';
+        var song = m.indexOf('yt-') === 0 ? 'yt:' + m.slice(3) : SONG_SLUGS[m];
+        gift = { to: q.get('to'), from: q.get('from'), wish: wish, song: song, tpl: q.get('t') };
       } else {
         // Link dạng cũ: #g=<JSON mã hóa>
         var m = /^#g=([A-Za-z0-9_-]+)$/.exec(location.hash);
@@ -62,8 +65,7 @@ GS.share = (function () {
         to: clean(gift.to, MAX_NAME), from: clean(gift.from, MAX_NAME), wish: clean(gift.wish, MAX_WISH),
         song: typeof gift.song === 'string' ? gift.song : '', tpl: GS.card.validTemplate(gift.tpl)
       };
-      var keys = GS.music.songList().map(function (s) { return s.key; });
-      if (keys.indexOf(gift.song) === -1) gift.song = 'jingle';
+      if (!GS.music.isValidChoice(gift.song)) gift.song = 'jingle';
       return gift.to && gift.from && gift.wish ? gift : null;
     } catch (e) {
       return null;
@@ -76,7 +78,7 @@ GS.share = (function () {
     q.set('from', gift.from);
     var idx = presets().indexOf(gift.wish);
     if (idx >= 0) q.set('w', idx + 1); else q.set('wc', encode(gift.wish));
-    q.set('m', slugOf(gift.song));
+    q.set('m', gift.song.indexOf('yt:') === 0 ? 'yt-' + gift.song.slice(3) : slugOf(gift.song));
     q.set('t', gift.tpl);
     return location.origin + location.pathname + '?' + q.toString();
   }
@@ -166,23 +168,42 @@ GS.share = (function () {
     });
     wishEl.value = presets()[0];
 
-    GS.music.songList().forEach(function (s) {
-      var o = document.createElement('option');
-      o.value = s.key;
-      o.textContent = '🎵 ' + s.name;
-      songSel.appendChild(o);
-    });
+    GS.music.fillSongSelect(songSel);
 
-    function previewing() { return GS.music.isPlaying() && GS.music.currentMelody() === songSel.value; }
+    // Nghe thử: nhạc chuông phát bằng Web Audio, bài YouTube phát trong khung video nhỏ ngay dưới.
+    var ytBox = document.getElementById('shYt');
+    function ytId() { return songSel.value.indexOf('yt:') === 0 ? songSel.value.slice(3) : null; }
+    function previewing() {
+      return ytId() ? GS.music.isYouTubePlayingIn('shYtPlayer')
+                    : GS.music.isPlaying() && GS.music.currentMelody() === songSel.value;
+    }
     function updatePreview() { preview.textContent = previewing() ? '⏹ Dừng' : '▶ Nghe thử'; }
+    function playChoice() {
+      if (ytId()) {
+        ytBox.hidden = false;
+        GS.music.playYouTubeIn('shYtPlayer', ytId(), {
+          onError: function () { status.textContent = ''; error.hidden = false; error.textContent = 'Bài YouTube này không phát được trên web khác, bạn chọn bài khác nhé.'; }
+        });
+      } else {
+        GS.music.stopYouTubeIn('shYtPlayer');
+        ytBox.hidden = true;
+        GS.music.playMelody(songSel.value);
+      }
+    }
     preview.addEventListener('click', function () {
-      if (previewing()) GS.music.setPlaying(false);
-      else GS.music.playMelody(songSel.value);
+      if (previewing()) {
+        GS.music.setPlaying(false);
+        GS.music.stopYouTubeIn('shYtPlayer');
+      } else playChoice();
+      // YouTube cần vài giây để tải, nên cập nhật nút thêm vài lần.
+      [400, 1500, 3000].forEach(function (ms) { setTimeout(updatePreview, ms); });
       updatePreview();
     });
     songSel.addEventListener('change', function () {
-      if (GS.music.isPlaying()) GS.music.playMelody(songSel.value);
+      error.hidden = true;
+      if (GS.music.isPlaying() || GS.music.isYouTubePlayingIn('shYtPlayer') || !ytBox.hidden) playChoice();
       updatePreview();
+      setTimeout(updatePreview, 1500);
       result.hidden = true;
     });
     document.getElementById('btnMusic').addEventListener('click', updatePreview);
@@ -204,7 +225,7 @@ GS.share = (function () {
       if (!check(d)) return;
       current = d;
       link = makeLink(d);
-      GS.music.playMelody(d.song);
+      playChoice();
       updatePreview();
       GS.santa.deliver(d.to, d.wish, function () {
         document.getElementById('shLink').value = link;

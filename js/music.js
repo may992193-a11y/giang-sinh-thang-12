@@ -277,6 +277,7 @@ GS.music = (function () {
       yt.playing = true;
       yt.errors = 0;
       setPlaying(false);
+      Object.keys(extra).forEach(stopYouTubeIn);
     } else if (e.data === YT.PlayerState.ENDED) {
       yt.playing = false;
       step(1);
@@ -301,6 +302,7 @@ GS.music = (function () {
     var v = effectiveVolume();
     if (master) master.gain.setTargetAtTime(v / 100 * MAX_GAIN, ctx.currentTime, 0.05);
     if (yt.player && yt.player.setVolume) yt.player.setVolume(v);
+    Object.keys(extra).forEach(function (k) { if (extra[k].ready) extra[k].player.setVolume(v); });
     document.getElementById('volRange').value = volume;
     document.getElementById('volText').textContent = muted ? 'Tắt' : volume + '%';
     document.getElementById('volMute').textContent = muted || volume === 0 ? '🔇' : volume < 40 ? '🔉' : '🔊';
@@ -325,6 +327,121 @@ GS.music = (function () {
 
   function pauseYouTube() {
     if (yt.player && yt.player.pauseVideo && yt.playing) yt.player.pauseVideo();
+    Object.keys(extra).forEach(stopYouTubeIn);
+  }
+
+  // ---------- Trình phát YouTube phụ (nghe thử khi tạo thiệp, và trong thiệp người nhận mở) ----------
+  // YouTube yêu cầu trình phát phải nhìn thấy được, nên mỗi nơi có một khung video riêng.
+  var extra = {};
+
+  // Tạo sẵn trình phát (chưa phát), để lúc người dùng chạm thì gọi phát ngay trong cú chạm đó.
+  function prepareYouTubeIn(elId, videoId, opts) {
+    opts = opts || {};
+    var p = extra[elId];
+    if (p) {
+      p.loop = !!opts.loop;
+      p.onError = opts.onError;
+      if (p.videoId !== videoId) {
+        p.videoId = videoId;
+        if (p.ready) p.player.cueVideoById(videoId);
+      }
+      return p;
+    }
+    p = extra[elId] = { player: null, ready: false, playing: false, pending: false, videoId: videoId, loop: !!opts.loop, onError: opts.onError };
+    loadYouTubeApi(function () {
+      p.player = new YT.Player(elId, {
+        host: 'https://www.youtube-nocookie.com',
+        width: '100%', height: '100%',
+        videoId: p.videoId,
+        playerVars: { playsinline: 1, rel: 0 },
+        events: {
+          onReady: function (e) {
+            p.ready = true;
+            e.target.setVolume(effectiveVolume());
+            if (p.pending) { p.pending = false; e.target.playVideo(); }
+          },
+          onStateChange: function (e) {
+            if (e.data === YT.PlayerState.PLAYING) {
+              p.playing = true;
+              setPlaying(false);
+              if (yt.player && yt.playing) yt.player.pauseVideo();
+              Object.keys(extra).forEach(function (k) { if (k !== elId) stopYouTubeIn(k); });
+            } else if (e.data === YT.PlayerState.ENDED) {
+              p.playing = false;
+              if (p.loop) { e.target.seekTo(0); e.target.playVideo(); }
+            } else if (e.data === YT.PlayerState.PAUSED) {
+              p.playing = false;
+            }
+          },
+          onError: function () { p.playing = false; if (p.onError) p.onError(); }
+        }
+      });
+    });
+    return p;
+  }
+
+  function playYouTubeIn(elId, videoId, opts) {
+    var p = prepareYouTubeIn(elId, videoId, opts);
+    setPlaying(false);
+    if (p.ready) p.player.playVideo(); else p.pending = true;
+  }
+
+  function stopYouTubeIn(elId) {
+    var p = extra[elId];
+    if (!p) return;
+    p.pending = false;
+    if (p.ready && p.playing) p.player.pauseVideo();
+    p.playing = false;
+  }
+
+  function isYouTubePlayingIn(elId) { return !!(extra[elId] && extra[elId].playing); }
+
+  // ---------- Danh sách nhạc gửi kèm thiệp: 5 bài nhạc chuông + các bài YouTube ----------
+  // Giá trị: khóa nhạc chuông ("jingle"...) hoặc "yt:<mã video>".
+  var GROUPS = { 'quoc-te': '🌍 YouTube – Quốc tế', 'viet-nam': '🇻🇳 YouTube – Việt Nam', 'thieu-nhi': '🧒 YouTube – Thiếu nhi' };
+
+  function allSongs() { return (GS.data && GS.data.songs) || []; }
+
+  function findYouTube(id) {
+    return allSongs().filter(function (s) { return s.id === id; })[0] || null;
+  }
+
+  function isValidChoice(value) {
+    if (typeof value !== 'string') return false;
+    if (value.indexOf('yt:') === 0) return !!findYouTube(value.slice(3));
+    return !!SONGS[value];
+  }
+
+  function choiceName(value) {
+    if (value && value.indexOf('yt:') === 0) {
+      var s = findYouTube(value.slice(3));
+      return s ? s.title + ' – ' + s.artist : '';
+    }
+    return SONGS[value] ? SONGS[value].name : '';
+  }
+
+  function fillSongSelect(select) {
+    var g = document.createElement('optgroup');
+    g.label = '🔔 Nhạc chuông Noel (phát ngay)';
+    songList().forEach(function (s) {
+      var o = document.createElement('option');
+      o.value = s.key;
+      o.textContent = s.name;
+      g.appendChild(o);
+    });
+    select.appendChild(g);
+    Object.keys(GROUPS).forEach(function (key) {
+      var grp = document.createElement('optgroup');
+      grp.label = GROUPS[key];
+      allSongs().forEach(function (s) {
+        if (s.group !== key) return;
+        var o = document.createElement('option');
+        o.value = 'yt:' + s.id;
+        o.textContent = s.title + ' – ' + s.artist;
+        grp.appendChild(o);
+      });
+      select.appendChild(grp);
+    });
   }
 
   function init() {
@@ -363,6 +480,11 @@ GS.music = (function () {
     init: init, hohoho: hohoho, jingle: jingle, clap: clap,
     setPlaying: setPlaying, isPlaying: function () { return playing; },
     playMelody: playMelody, songList: songList, currentMelody: function () { return current; },
-    isYouTubePlaying: function () { return yt.playing; }
+    isYouTubePlaying: function () {
+      return yt.playing || Object.keys(extra).some(function (k) { return extra[k].playing; });
+    },
+    prepareYouTubeIn: prepareYouTubeIn, playYouTubeIn: playYouTubeIn, stopYouTubeIn: stopYouTubeIn,
+    isYouTubePlayingIn: isYouTubePlayingIn,
+    fillSongSelect: fillSongSelect, isValidChoice: isValidChoice, choiceName: choiceName
   };
 })();
