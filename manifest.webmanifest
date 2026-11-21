@@ -1,0 +1,15 @@
+{
+  "name": "Giáng Sinh Tháng 12",
+  "short_name": "Noel 12",
+  "description": "Đếm từng ngày tới Noel, mở quà và chơi cùng ông già Noel.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1533",
+  "theme_color": "#122243",
+  "lang": "vi",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
