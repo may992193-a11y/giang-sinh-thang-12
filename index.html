@@ -264,6 +264,19 @@
         <p id="ytNow" class="yt-now"></p>
         <button id="ytNext" class="btn btn-ghost btn-sm" type="button" aria-label="Bài tiếp">⏭</button>
       </div>
+      <div class="song-tools">
+        <div id="songTabs" class="song-tabs" role="tablist" aria-label="Nhóm nhạc">
+          <button type="button" data-group="all" aria-selected="true">Tất cả</button>
+          <button type="button" data-group="quoc-te">🌍 Quốc tế</button>
+          <button type="button" data-group="viet-nam">🇻🇳 Việt Nam</button>
+          <button type="button" data-group="thieu-nhi">🧒 Thiếu nhi</button>
+        </div>
+        <div class="row">
+          <input id="songSearch" type="search" placeholder="🔎 Tìm bài hát hoặc ca sĩ..." aria-label="Tìm bài hát">
+          <button id="songShuffle" class="btn btn-ghost btn-sm" type="button" aria-pressed="false">🔀 Ngẫu nhiên</button>
+        </div>
+        <p id="songCount" class="muted song-count"></p>
+      </div>
       <ol id="songList" class="song-list"></ol>
     </section>
 

@@ -173,7 +173,7 @@ GS.music = (function () {
   }
 
   // ---------- Nhạc Giáng Sinh trên YouTube (trình phát nhúng chính thức) ----------
-  var yt = { player: null, index: 0, playing: false, errors: 0, songs: [] };
+  var yt = { player: null, index: 0, playing: false, errors: 0, songs: [], group: 'all', query: '', shuffle: false };
 
   function loadYouTubeApi(cb) {
     if (window.YT && window.YT.Player) return cb();
@@ -187,10 +187,45 @@ GS.music = (function () {
     }
   }
 
+  // Bỏ dấu để tìm "ong gia noel" vẫn ra "Ông Già Noel".
+  function plain(s) {
+    return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase();
+  }
+
+  // Chỉ số các bài đang hiện theo nhóm và từ khóa tìm kiếm.
+  function visible() {
+    var q = plain(yt.query.trim());
+    var out = [];
+    yt.songs.forEach(function (s, i) {
+      if (yt.group !== 'all' && s.group !== yt.group) return;
+      if (q && plain(s.title + ' ' + s.artist).indexOf(q) === -1) return;
+      out.push(i);
+    });
+    return out;
+  }
+
+  // Bài kế tiếp (step = 1) hoặc bài trước (step = -1) trong danh sách đang hiện; bật Ngẫu nhiên thì chọn bừa.
+  function step(dir) {
+    var list = visible();
+    if (!list.length) list = yt.songs.map(function (s, i) { return i; });
+    if (yt.shuffle && list.length > 1) {
+      var r;
+      do { r = list[Math.floor(Math.random() * list.length)]; } while (r === yt.index);
+      return playSong(r);
+    }
+    var pos = list.indexOf(yt.index);
+    playSong(list[pos === -1 ? 0 : (pos + dir + list.length) % list.length]);
+  }
+
   function renderSongs() {
     var list = document.getElementById('songList');
+    var shown = visible();
     list.replaceChildren();
-    yt.songs.forEach(function (song, i) {
+    document.getElementById('songCount').textContent = shown.length
+      ? 'Có ' + shown.length + ' / ' + yt.songs.length + ' bài'
+      : 'Không tìm thấy bài nào, thử từ khóa khác nhé.';
+    shown.forEach(function (i) {
+      var song = yt.songs[i];
       var li = document.createElement('li');
       var b = document.createElement('button');
       b.type = 'button';
@@ -244,7 +279,7 @@ GS.music = (function () {
       setPlaying(false);
     } else if (e.data === YT.PlayerState.ENDED) {
       yt.playing = false;
-      playSong(yt.index + 1);
+      step(1);
     } else if (e.data === YT.PlayerState.PAUSED) {
       yt.playing = false;
     }
@@ -256,7 +291,7 @@ GS.music = (function () {
     yt.errors++;
     if (yt.errors >= yt.songs.length) return showNow('⚠️ Hiện không phát được bài nào, bạn thử lại sau nhé.');
     showNow('⚠️ Bài này không phát được ở đây, đang chuyển bài tiếp...');
-    setTimeout(function () { playSong(yt.index + 1); }, 1500);
+    setTimeout(function () { step(1); }, 1500);
   }
 
   // ---------- Âm lượng ----------
@@ -301,8 +336,27 @@ GS.music = (function () {
     initVolume();
     yt.songs = (GS.data && GS.data.songs) || [];
     renderSongs();
-    document.getElementById('ytPrev').addEventListener('click', function () { playSong(yt.index - 1); });
-    document.getElementById('ytNext').addEventListener('click', function () { playSong(yt.index + 1); });
+    document.getElementById('ytPrev').addEventListener('click', function () { step(-1); });
+    document.getElementById('ytNext').addEventListener('click', function () { step(1); });
+
+    var tabs = document.querySelectorAll('#songTabs button');
+    tabs.forEach(function (b) {
+      b.addEventListener('click', function () {
+        yt.group = b.dataset.group;
+        tabs.forEach(function (x) { x.setAttribute('aria-selected', x === b); });
+        renderSongs();
+      });
+    });
+    document.getElementById('songSearch').addEventListener('input', function (e) {
+      yt.query = e.target.value;
+      renderSongs();
+    });
+    var shuffle = document.getElementById('songShuffle');
+    shuffle.addEventListener('click', function () {
+      yt.shuffle = !yt.shuffle;
+      shuffle.setAttribute('aria-pressed', yt.shuffle);
+      if (yt.shuffle && !yt.player) step(1);
+    });
   }
 
   return {
