@@ -347,18 +347,4 @@
 /* Hiệu ứng vẽ trên canvas tuyết được đưa lên trên màn trao thư */
 .fx-on #snow { z-index: 21; }
 
-/* ---------- Người nhận mở link quà ---------- */
-.gift-link { gap: 18px; text-align: center; }
-.gl-title {
-  margin: 0;
-  max-width: 420px;
-  font-family: "Dancing Script", "Segoe Script", cursive;
-  font-size: clamp(1.8rem, 7vw, 2.4rem);
-  line-height: 1.25;
-  color: var(--gold);
-  text-shadow: 0 0 18px rgba(255, 213, 74, .5);
-  animation: bubble-in .6s ease-out;
-}
-.gl-gift { position: relative; right: auto; bottom: auto; zoom: 1.9; margin: 20px 0 10px; }
-.gl-hint { margin: 0; color: var(--muted); animation: twinkle 2s ease-in-out infinite; }
 .ws-from { display: block; text-align: right; margin-top: 6px; color: #7a1f1f; }

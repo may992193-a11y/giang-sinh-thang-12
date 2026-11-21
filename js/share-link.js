@@ -1,7 +1,12 @@
-// Tạo đường link lời chúc kèm nhạc để gửi bạn bè, và mở quà khi người nhận vào link.
-// Lời chúc nằm ngay trong link (phần sau dấu #), nên chạy được trên GitHub Pages mà không cần máy chủ.
+// Tạo thiệp và đường link lời chúc kèm nhạc để gửi bạn bè; đọc link khi người nhận mở.
+// Lời chúc nằm ngay trong link, nên chạy được trên GitHub Pages mà không cần máy chủ.
+// Dạng link: ?to=Lan&from=Thanh&w=3&m=silent-night&t=lang-tuyet  (lời chúc tự viết: wc=<mã hóa>)
 GS.share = (function () {
   var MAX_NAME = 30, MAX_WISH = 200, MAX_CODE = 2000;
+  var SONG_SLUGS = {
+    'jingle-bells': 'jingle', 'we-wish': 'wewish', 'silent-night': 'silent',
+    'deck-the-halls': 'deck', 'o-christmas-tree': 'tree'
+  };
   var incoming = null;
 
   // Bỏ ký tự điều khiển và ký tự đảo chiều chữ, gộp khoảng trắng, cắt theo độ dài tối đa.
@@ -12,28 +17,51 @@ GS.share = (function () {
     return Array.from(s).slice(0, max).join('');
   }
 
-  function encode(obj) {
-    var bytes = new TextEncoder().encode(JSON.stringify(obj)), bin = '';
+  function encode(text) {
+    var bytes = new TextEncoder().encode(text), bin = '';
     bytes.forEach(function (b) { bin += String.fromCharCode(b); });
     return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
 
   function decode(code) {
+    if (!/^[A-Za-z0-9_-]+$/.test(code) || code.length > MAX_CODE) throw new Error('bad code');
     var b64 = code.replace(/-/g, '+').replace(/_/g, '/');
     while (b64.length % 4) b64 += '=';
     var bin = atob(b64), bytes = new Uint8Array(bin.length);
     for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   }
 
-  // Đọc quà từ link. Link hỏng hoặc bị sửa bậy thì bỏ qua, app chạy như bình thường.
+  function slugOf(key) {
+    for (var s in SONG_SLUGS) if (SONG_SLUGS[s] === key) return s;
+    return 'jingle-bells';
+  }
+
+  function presets() { return GS.data.wishes.scrollWishes; }
+
+  // Đọc thiệp từ link. Link hỏng hoặc bị sửa bậy thì bỏ qua, app chạy như bình thường.
   function parse() {
-    var m = /^#g=([A-Za-z0-9_-]+)$/.exec(location.hash);
-    if (!m || m[1].length > MAX_CODE) return null;
     try {
-      var d = decode(m[1]);
-      if (!d || typeof d !== 'object') return null;
-      var gift = { to: clean(d.t, MAX_NAME), from: clean(d.f, MAX_NAME), wish: clean(d.w, MAX_WISH), song: clean(d.s, 10) };
+      var q = new URLSearchParams(location.search), gift;
+      if (q.has('to')) {
+        var wish = '';
+        if (q.has('wc')) wish = decode(q.get('wc'));
+        else {
+          var n = parseInt(q.get('w'), 10);
+          if (n >= 1 && n <= presets().length) wish = presets()[n - 1];
+        }
+        gift = { to: q.get('to'), from: q.get('from'), wish: wish, song: SONG_SLUGS[q.get('m')], tpl: q.get('t') };
+      } else {
+        // Link dạng cũ: #g=<JSON mã hóa>
+        var m = /^#g=([A-Za-z0-9_-]+)$/.exec(location.hash);
+        if (!m) return null;
+        var d = JSON.parse(decode(m[1]));
+        gift = { to: d.t, from: d.f, wish: d.w, song: d.s, tpl: 'co-dien' };
+      }
+      gift = {
+        to: clean(gift.to, MAX_NAME), from: clean(gift.from, MAX_NAME), wish: clean(gift.wish, MAX_WISH),
+        song: typeof gift.song === 'string' ? gift.song : '', tpl: GS.card.validTemplate(gift.tpl)
+      };
       var keys = GS.music.songList().map(function (s) { return s.key; });
       if (keys.indexOf(gift.song) === -1) gift.song = 'jingle';
       return gift.to && gift.from && gift.wish ? gift : null;
@@ -42,95 +70,101 @@ GS.share = (function () {
     }
   }
 
-  function baseUrl() { return location.origin + location.pathname; }
-
   function makeLink(gift) {
-    return baseUrl() + '#g=' + encode({ t: gift.to, f: gift.from, w: gift.wish, s: gift.song });
+    var q = new URLSearchParams();
+    q.set('to', gift.to);
+    q.set('from', gift.from);
+    var idx = presets().indexOf(gift.wish);
+    if (idx >= 0) q.set('w', idx + 1); else q.set('wc', encode(gift.wish));
+    q.set('m', slugOf(gift.song));
+    q.set('t', gift.tpl);
+    return location.origin + location.pathname + '?' + q.toString();
   }
 
-  // ---------- Người nhận: hộp quà, chạm để phát nhạc rồi ông đọc lời chúc ----------
-  function openGift(gift) {
-    var box = document.getElementById('giftLink');
-    var btn = document.getElementById('glGift');
-    document.getElementById('glTitle').textContent = 'Có quà Giáng Sinh gửi ' + gift.to + ' từ ' + gift.from + '!';
-    var flakes = box.querySelector('.intro-flakes');
-    for (var i = 0; i < 25; i++) {
-      var f = document.createElement('span');
-      f.textContent = '❄';
-      f.style.left = Math.random() * 100 + '%';
-      f.style.fontSize = (8 + Math.random() * 14) + 'px';
-      f.style.animationDuration = (5 + Math.random() * 6) + 's';
-      f.style.animationDelay = (-Math.random() * 8) + 's';
-      flakes.appendChild(f);
-    }
-    document.body.classList.add('intro-on');
-    box.hidden = false;
-
-    // Trình duyệt điện thoại chỉ cho phát nhạc sau khi người dùng chạm, nên nhạc bắt đầu ở đây.
-    btn.addEventListener('click', function () {
-      if (btn.classList.contains('open')) return;
-      btn.classList.add('open');
-      GS.music.playMelody(gift.song);
-      setTimeout(function () {
-        box.classList.add('leaving');
-        setTimeout(function () {
-          box.hidden = true;
-          GS.santa.deliver(gift.to, gift.wish, function () { showReply(gift); }, gift.from);
-        }, 600);
-      }, 700);
-    });
-  }
-
-  // Sau khi nghe xong: điền sẵn form để người nhận gửi lại lời chúc.
-  function showReply(gift) {
+  // Người nhận bấm "Tạo thiệp của bạn": điền sẵn form để gửi lại.
+  function prefillReply(gift) {
     var note = document.getElementById('replyNote');
-    note.textContent = '💌 ' + gift.from + ' gửi bạn: "' + gift.wish + '". Gửi lại một lời chúc cho ' + gift.from + ' nhé!';
+    note.textContent = '💌 ' + gift.from + ' gửi bạn: "' + gift.wish + '". Tạo thiệp gửi lại cho ' + gift.from + ' nhé!';
     note.hidden = false;
     document.getElementById('shTo').value = gift.from;
     document.getElementById('shFrom').value = gift.to;
+    document.getElementById('shTo').dispatchEvent(new Event('input', { bubbles: true }));
     document.getElementById('shareCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // ---------- Người gửi: form tạo link ----------
   function copyLink(url, status) {
-    var done = function () { status.textContent = '✅ Đã sao chép link! Dán vào Zalo hoặc Messenger để gửi nhé.'; };
+    var ok = '✅ Đã sao chép link! Dán vào Zalo hoặc Messenger để gửi nhé.';
     var fallback = function () {
       var input = document.getElementById('shLink');
       input.focus();
       input.select();
-      var ok = false;
-      try { ok = document.execCommand('copy'); } catch (e) { /* trình duyệt chặn */ }
-      status.textContent = ok ? '✅ Đã sao chép link! Dán vào Zalo hoặc Messenger để gửi nhé.'
-                              : '⚠️ Không sao chép được, hãy giữ vào ô link để chép.';
+      var done = false;
+      try { done = document.execCommand('copy'); } catch (e) { /* trình duyệt chặn */ }
+      status.textContent = done ? ok : '⚠️ Không sao chép được, hãy giữ vào ô link để chép.';
     };
-    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(url).then(done, fallback);
-    else fallback();
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(function () { status.textContent = ok; }, fallback);
+    } else fallback();
   }
 
+  // ---------- Người gửi: khu Tạo thiệp ----------
   function initForm() {
-    var wishSel = document.getElementById('shWish');
-    var custom = document.getElementById('shCustom');
+    var form = document.getElementById('shareForm');
+    var toEl = document.getElementById('shTo');
+    var fromEl = document.getElementById('shFrom');
+    var wishEl = document.getElementById('shWish');
+    var count = document.getElementById('shCount');
     var songSel = document.getElementById('shSong');
     var preview = document.getElementById('shPreview');
     var error = document.getElementById('shError');
     var result = document.getElementById('shResult');
     var status = document.getElementById('shStatus');
-    var link = '', current = null;
+    var pngBtn = document.getElementById('shPng');
+    var tpl = 'co-dien', link = '', current = null, lastSuggest = -1;
 
-    GS.data.wishes.scrollWishes.forEach(function (w) {
-      var o = document.createElement('option');
-      o.value = w;
-      o.textContent = w;
-      wishSel.appendChild(o);
+    var card = GS.card.build();
+    document.getElementById('shPreviewCard').appendChild(card);
+
+    function data() {
+      return {
+        to: clean(toEl.value, MAX_NAME), from: clean(fromEl.value, MAX_NAME),
+        wish: clean(wishEl.value, MAX_WISH), song: songSel.value, tpl: tpl
+      };
+    }
+
+    // Xem trước: tấm thiệp cập nhật ngay khi gõ, đúng như người nhận sẽ thấy.
+    function refresh() {
+      count.textContent = Array.from(wishEl.value).length + '/' + MAX_WISH;
+      GS.card.fill(card, data());
+      result.hidden = true;
+    }
+
+    // 3 mẫu thiệp
+    var pick = document.getElementById('shTpl');
+    GS.card.TEMPLATES.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tpl-btn tpl-' + t.key;
+      b.setAttribute('role', 'radio');
+      b.dataset.tpl = t.key;
+      b.textContent = t.name;
+      b.addEventListener('click', function () {
+        tpl = t.key;
+        pick.querySelectorAll('.tpl-btn').forEach(function (x) { x.setAttribute('aria-checked', x === b); });
+        refresh();
+      });
+      pick.appendChild(b);
     });
-    var own = document.createElement('option');
-    own.value = '';
-    own.textContent = '✏️ Tự viết lời chúc...';
-    wishSel.appendChild(own);
-    wishSel.addEventListener('change', function () {
-      custom.hidden = wishSel.value !== '';
-      if (!custom.hidden) custom.focus();
+    pick.firstChild.setAttribute('aria-checked', 'true');
+
+    document.getElementById('shSuggest').addEventListener('click', function () {
+      var list = presets(), i;
+      do { i = Math.floor(Math.random() * list.length); } while (i === lastSuggest && list.length > 1);
+      lastSuggest = i;
+      wishEl.value = list[i];
+      refresh();
     });
+    wishEl.value = presets()[0];
 
     GS.music.songList().forEach(function (s) {
       var o = document.createElement('option');
@@ -149,27 +183,43 @@ GS.share = (function () {
     songSel.addEventListener('change', function () {
       if (GS.music.isPlaying()) GS.music.playMelody(songSel.value);
       updatePreview();
+      result.hidden = true;
     });
     document.getElementById('btnMusic').addEventListener('click', updatePreview);
 
-    document.getElementById('shareForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      var gift = {
-        to: clean(document.getElementById('shTo').value, MAX_NAME),
-        from: clean(document.getElementById('shFrom').value, MAX_NAME),
-        wish: clean(wishSel.value || custom.value, MAX_WISH),
-        song: songSel.value
-      };
-      var missing = !gift.to ? 'tên người nhận' : !gift.from ? 'tên của bạn' : !gift.wish ? 'lời chúc' : '';
+    [toEl, fromEl, wishEl].forEach(function (el) { el.addEventListener('input', refresh); });
+    refresh();
+
+    function check(d) {
+      var missing = !d.to ? 'tên người nhận' : !d.from ? 'tên của bạn' : !d.wish ? 'lời chúc' : '';
       error.hidden = !missing;
-      if (missing) { error.textContent = 'Bạn chưa nhập ' + missing + '.'; result.hidden = true; return; }
-      current = gift;
-      link = makeLink(gift);
-      document.getElementById('shLink').value = link;
-      document.getElementById('shOpen').href = link;
-      status.textContent = 'Link đã sẵn sàng, bấm Sao chép hoặc Chia sẻ để gửi cho ' + gift.to + '.';
-      result.hidden = false;
-      GS.music.jingle();
+      error.textContent = missing ? 'Bạn chưa nhập ' + missing + '.' : '';
+      return !missing;
+    }
+
+    // Gửi lời chúc: ông già Noel đọc lời chúc và tạo bất ngờ, xong mới hiện link.
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var d = data();
+      if (!check(d)) return;
+      current = d;
+      link = makeLink(d);
+      GS.music.playMelody(d.song);
+      updatePreview();
+      GS.santa.deliver(d.to, d.wish, function () {
+        document.getElementById('shLink').value = link;
+        document.getElementById('shOpen').href = link;
+        status.textContent = 'Link thiệp đã sẵn sàng, bấm Sao chép hoặc Chia sẻ để gửi cho ' + d.to + '.';
+        result.hidden = false;
+        result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, d.from);
+    });
+
+    pngBtn.addEventListener('click', function () {
+      var d = data();
+      if (!check(d)) return;
+      pngBtn.disabled = true;
+      GS.card.download(d).then(function () { pngBtn.disabled = false; });
     });
 
     document.getElementById('shCopy').addEventListener('click', function () { copyLink(link, status); });
@@ -178,8 +228,8 @@ GS.share = (function () {
     document.getElementById('shShare').addEventListener('click', function () {
       if (!navigator.share) return copyLink(link, status);
       navigator.share({
-        title: 'Quà Giáng Sinh 🎁',
-        text: '🎁 ' + current.from + ' gửi ' + current.to + ' một món quà Giáng Sinh, mở ra xem nhé!',
+        title: 'Thiệp Giáng Sinh 🎄',
+        text: '💌 ' + current.from + ' gửi ' + current.to + ' một tấm thiệp Giáng Sinh, mở ra xem nhé!',
         url: link
       }).catch(function () { /* người dùng đóng bảng chia sẻ */ });
     });
@@ -187,7 +237,7 @@ GS.share = (function () {
 
   function init() {
     initForm();
-    if (incoming) openGift(incoming);
+    if (incoming) GS.card.open(incoming, prefillReply);
   }
 
   return {

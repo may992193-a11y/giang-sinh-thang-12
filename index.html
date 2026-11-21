@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap&subset=vietnamese">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/santa.css">
+  <link rel="stylesheet" href="css/card.css">
 </head>
 <body class="intro-on">
   <!-- Màn chào: ông già Noel tặng quà khi mở app -->
@@ -91,15 +92,37 @@
     </div>
   </div>
 
-  <!-- Người nhận mở link quà: chạm hộp quà để phát nhạc và nghe ông đọc lời chúc -->
-  <div id="giftLink" class="intro gift-link" role="dialog" aria-modal="true" aria-label="Quà Giáng Sinh" hidden>
+  <!-- Người nhận mở link: phong bì Noel, chạm để mở thiệp, ông già Noel trao thiệp -->
+  <div id="cardView" class="intro card-view" role="dialog" aria-modal="true" aria-label="Thiệp Giáng Sinh" hidden>
     <div class="intro-flakes" aria-hidden="true"></div>
-    <p id="glTitle" class="gl-title"></p>
-    <button id="glGift" class="intro-gift gl-gift" type="button" aria-label="Mở hộp quà">
-      <span class="gift-lid"><span class="gift-bow"></span></span>
-      <span class="gift-base"></span>
-    </button>
-    <p class="gl-hint">👆 Chạm vào hộp quà để mở</p>
+    <div class="cv-inner">
+      <button id="cvEnvelope" class="envelope" type="button" aria-label="Mở phong bì thiệp">
+        <span class="env-back"></span>
+        <span class="env-letter"></span>
+        <span class="env-front"></span>
+        <span class="env-flap"></span>
+        <span class="env-seal" aria-hidden="true">❄</span>
+        <span id="cvTo" class="env-label"></span>
+      </button>
+      <p id="cvHint" class="cv-hint">👆 Chạm vào phong bì để mở thiệp</p>
+      <div id="cvStage" class="cv-stage" hidden>
+        <div id="cvCard"></div>
+        <div id="cvSanta" class="cv-santa" hidden>
+          <div id="cvBubble" class="bubble cv-bubble" hidden></div>
+          <span id="cvClap" class="ws-clap" hidden>👏</span>
+        </div>
+      </div>
+      <p id="cvIos" class="cv-ios" hidden>🔇 Không nghe thấy nhạc? Hãy gạt tắt chế độ im lặng trên iPhone nhé.</p>
+      <div id="cvActions" class="row cv-actions" hidden>
+        <button id="cvDownload" class="btn" type="button">🖼 Tải ảnh thiệp</button>
+        <button id="cvMusicBtn" class="btn btn-ghost" type="button">🎵 Hộp nhạc</button>
+        <button id="cvCreate" class="btn btn-red" type="button">💌 Tạo thiệp của bạn</button>
+      </div>
+      <div id="cvMusic" class="row cv-music" hidden>
+        <select id="cvSong" aria-label="Chọn bài nhạc"></select>
+        <button id="cvMute" class="btn btn-ghost btn-sm" type="button">🔇 Tắt nhạc</button>
+      </div>
+    </div>
   </div>
 
   <!-- Bầu trời -->
@@ -259,28 +282,42 @@
     </section>
 
     <section id="shareCard" class="card">
-      <h2>🔗 Gửi link lời chúc kèm nhạc</h2>
+      <h2>💌 Tạo thiệp Giáng Sinh gửi người thân</h2>
       <p id="replyNote" class="wish-out" hidden></p>
-      <p class="muted">Tạo một đường link để gửi qua Zalo, Messenger. Người nhận mở ra sẽ thấy hộp quà, nghe nhạc và được ông già Noel đọc lời chúc.</p>
-      <form id="shareForm" class="share-form">
-        <div class="row">
-          <input id="shTo" type="text" maxlength="30" placeholder="Tên người nhận" autocomplete="off">
-          <input id="shFrom" type="text" maxlength="30" placeholder="Tên của bạn" autocomplete="off">
+      <p class="muted">Tạo thiệp rồi gửi link qua Zalo, Messenger. Người nhận mở phong bì, nghe nhạc và được ông già Noel trao thiệp tận tay.</p>
+      <div class="maker">
+        <form id="shareForm" class="share-form">
+          <span class="field">Mẫu thiệp</span>
+          <div id="shTpl" class="tpl-pick" role="radiogroup" aria-label="Mẫu thiệp"></div>
+          <div class="row">
+            <input id="shTo" type="text" maxlength="30" placeholder="Tên người nhận (vd: Lan)" autocomplete="off">
+            <input id="shFrom" type="text" maxlength="30" placeholder="Tên của bạn (vd: Thanh)" autocomplete="off">
+          </div>
+          <div class="field-row">
+            <label class="field" for="shWish">Lời chúc</label>
+            <button id="shSuggest" class="btn btn-ghost btn-sm" type="button">💡 Gợi ý lời chúc</button>
+          </div>
+          <textarea id="shWish" maxlength="200" rows="4" placeholder="Viết lời chúc của bạn..."></textarea>
+          <span id="shCount" class="counter">0/200</span>
+          <label class="field" for="shSong">Nhạc gửi kèm</label>
+          <div class="row">
+            <select id="shSong"></select>
+            <button id="shPreview" class="btn btn-ghost btn-sm" type="button">▶ Nghe thử</button>
+          </div>
+          <p class="privacy">🔒 Ai có link cũng đọc được lời chúc. Đừng ghi số điện thoại, địa chỉ hay thông tin riêng tư vào đây nhé.</p>
+          <p id="shError" class="sh-error" hidden></p>
+          <div class="row">
+            <button class="btn btn-red" type="submit">🎅 Gửi lời chúc &amp; tạo link</button>
+            <button id="shPng" class="btn" type="button">🖼 Tải ảnh thiệp</button>
+          </div>
+        </form>
+        <div class="preview-wrap">
+          <span class="field">Xem trước thiệp</span>
+          <div id="shPreviewCard"></div>
         </div>
-        <label class="field" for="shWish">Lời chúc</label>
-        <select id="shWish"></select>
-        <textarea id="shCustom" maxlength="200" rows="3" placeholder="Viết lời chúc của bạn (tối đa 200 chữ)..." hidden></textarea>
-        <label class="field" for="shSong">Nhạc gửi kèm</label>
-        <div class="row">
-          <select id="shSong"></select>
-          <button id="shPreview" class="btn btn-ghost btn-sm" type="button">▶ Nghe thử</button>
-        </div>
-        <p class="privacy">🔒 Ai có link cũng đọc được lời chúc. Đừng ghi số điện thoại, địa chỉ hay thông tin riêng tư vào đây nhé.</p>
-        <p id="shError" class="sh-error" hidden></p>
-        <button class="btn btn-red" type="submit">🎁 Tạo link quà</button>
-      </form>
+      </div>
       <div id="shResult" class="sh-result" hidden>
-        <input id="shLink" type="text" readonly aria-label="Link quà Giáng Sinh">
+        <input id="shLink" type="text" readonly aria-label="Link thiệp Giáng Sinh">
         <div class="row">
           <button id="shCopy" class="btn" type="button">📋 Sao chép link</button>
           <button id="shShare" class="btn btn-red" type="button">📤 Chia sẻ</button>
@@ -373,6 +410,7 @@
   <script src="js/santa.js"></script>
   <script src="js/santa-letter.js"></script>
   <script src="js/santa-game.js"></script>
+  <script src="js/card.js"></script>
   <script src="js/share-link.js"></script>
   <script src="js/main.js"></script>
 </body>

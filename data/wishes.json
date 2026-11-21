@@ -48,6 +48,10 @@
     "wink": "Khoan đã, còn một bất ngờ nữa! 😉",
     "bye": "Giáng Sinh vui vẻ! Ông đi đây. Ho ho ho!"
   },
+  "card": {
+    "arrive": "Ho ho ho! {from} nhờ ông trao tấm thiệp này cho {name} đây!",
+    "bye": "Giáng Sinh vui vẻ nhé {name}! Nhớ gửi lại lời chúc cho {from} nha. Ho ho ho!"
+  },
   "scrollWishes": [
     "Chúc cháu một mùa Giáng Sinh ấm áp và tràn ngập tiếng cười!",
     "Chúc cháu năm mới khỏe mạnh, bình an và luôn được yêu thương!",
